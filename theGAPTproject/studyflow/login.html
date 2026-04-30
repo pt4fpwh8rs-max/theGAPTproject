@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyFlow — Acceso</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- EmailJS for custom emails -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070a;--bg2:#0d0d11;--bg3:#131318;--bg4:#1a1a20;
+  --border:#1c1c23;--border2:#27272f;--border3:#36363f;
+  --text:#eeeef2;--text2:#909099;--text3:#4e4e5a;
+  --accent:#c8f55a;--a2:#a8d83a;--a3:rgba(200,245,90,.09);--a4:rgba(200,245,90,.04);
+  --blue:#5ac8f5;--red:#f55a5a;--green:#4de6a0;--orange:#f5a55a;--purple:#b060f0;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--dp:'Syne',sans-serif;
+  --r:8px;--r2:14px;--r3:20px;
+  --sh2:0 8px 32px rgba(0,0,0,.5);--sh3:0 24px 60px rgba(0,0,0,.7);
+}
+html{height:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+::selection{background:rgba(200,245,90,.2)}
+
+/* ── LAYOUT SPLIT ── */
+.auth-layout{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+@media(max-width:768px){.auth-layout{grid-template-columns:1fr}}
+
+/* ── LEFT PANEL — BRANDING ── */
+.left-panel{
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:48px;position:relative;overflow:hidden;
+}
+@media(max-width:768px){.left-panel{display:none}}
+.left-panel::before{
+  content:'';position:absolute;top:-100px;left:-100px;
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(200,245,90,.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+.left-panel::after{
+  content:'';position:absolute;bottom:-80px;right:-80px;
+  width:350px;height:350px;
+  background:radial-gradient(circle,rgba(90,200,245,.04) 0%,transparent 65%);
+  pointer-events:none;
+}
+.brand{z-index:1}
+.brand-logo{display:flex;align-items:center;gap:11px;margin-bottom:48px}
+.brand-icon{
+  width:38px;height:38px;background:var(--accent);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--dp);font-size:18px;font-weight:800;color:#07070a;
+}
+.brand-name{font-family:var(--dp);font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.02em}
+.brand-ver{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:2px}
+
+.left-hero{margin-bottom:48px;z-index:1}
+.left-title{
+  font-family:var(--dp);font-size:36px;font-weight:800;
+  color:var(--text);letter-spacing:-.03em;line-height:1.2;margin-bottom:16px;
+}
+.left-title span{color:var(--accent)}
+.left-sub{font-size:14px;color:var(--text2);line-height:1.7;max-width:340px}
+
+.feature-list{display:flex;flex-direction:column;gap:12px;z-index:1}
+.feature-item{display:flex;align-items:center;gap:12px}
+.fi-icon{
+  width:34px;height:34px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0;background:var(--bg3);
+  border:1px solid var(--border2);
+}
+.fi-body{}
+.fi-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:1px}
+.fi-desc{font-size:11px;color:var(--text3)}
+
+.left-footer{font-family:var(--mono);font-size:10px;color:var(--text3);z-index:1}
+
+/* Animated glow orb */
+.glow-orb{
+  position:absolute;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(200,245,90,.08),transparent 70%);
+  animation:float 8s ease-in-out infinite;pointer-events:none;
+}
+.orb1{top:30%;left:20%}
+.orb2{top:60%;right:10%;animation-delay:-4s;background:radial-gradient(circle,rgba(90,200,245,.06),transparent 70%)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+
+/* ── RIGHT PANEL — FORMS ── */
+.right-panel{
+  display:flex;align-items:center;justify-content:center;
+  padding:48px 40px;background:var(--bg);
+}
+@media(max-width:768px){.right-panel{padding:32px 24px}}
+
+.auth-box{width:100%;max-width:420px}
+
+/* Tab switcher */
+.auth-tabs{display:flex;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:4px;margin-bottom:32px}
+.auth-tab{
+  flex:1;background:transparent;border:none;color:var(--text3);
+  font-family:var(--mono);font-size:12px;padding:9px;border-radius:9px;
+  cursor:pointer;transition:all .2s;
+}
+.auth-tab.active{background:var(--bg3);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+.auth-heading{font-family:var(--dp);font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.02em;margin-bottom:5px}
+.auth-sub{font-size:13px;color:var(--text3);margin-bottom:28px}
+
+/* Form */
+.form-group{margin-bottom:14px}
+.form-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.07em;display:block;margin-bottom:6px}
+.form-input-wrap{position:relative}
+.form-input{
+  width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+  color:var(--text);font-family:var(--sans);font-size:14px;padding:11px 14px;
+  outline:none;transition:all .2s;color-scheme:dark;
+}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,245,90,.08)}
+.form-input::placeholder{color:var(--text3)}
+.form-input.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(245,90,90,.08)}
+.form-input.success{border-color:var(--green)}
+.form-input-icon{
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  cursor:pointer;color:var(--text3);transition:color .15s;background:none;border:none;
+  padding:2px 4px;display:flex;align-items:center;
+}
+.form-input-icon:hover{color:var(--text2)}
+.form-input.has-icon{padding-right:42px}
+
+.form-error{font-size:11px;color:var(--red);margin-top:5px;display:none;font-family:var(--mono)}
+.form-error.show{display:block}
+
+/* Name row */
+.name-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+
+/* Password strength */
+.pwd-strength{margin-top:7px;display:none}
+.pwd-strength.show{display:block}
+.pwd-bars{display:flex;gap:3px;margin-bottom:4px}
+.pwd-bar{flex:1;height:3px;border-radius:2px;background:var(--border2);transition:background .3s}
+.pwd-bar.w{background:var(--red)}
+.pwd-bar.f{background:var(--orange)}
+.pwd-bar.g{background:var(--accent)}
+.pwd-bar.s{background:var(--green)}
+.pwd-label{font-family:var(--mono);font-size:10px;color:var(--text3)}
+
+/* Checkbox */
+.form-check{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;cursor:pointer}
+.form-check-box{
+  width:16px;height:16px;border:1px solid var(--border2);border-radius:4px;
+  flex-shrink:0;margin-top:2px;cursor:pointer;appearance:none;-webkit-appearance:none;
+  transition:all .15s;position:relative;background:var(--bg3);
+}
+.form-check-box:checked{background:var(--accent);border-color:var(--accent)}
+.form-check-box:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:#07070a;font-weight:700}
+.form-check-lbl{font-size:12px;color:var(--text3);line-height:1.5}
+.form-check-lbl a{color:var(--blue);text-decoration:none}
+.form-check-lbl a:hover{text-decoration:underline}
+
+/* Submit button */
+.btn-submit{
+  width:100%;background:var(--accent);color:#07070a;border:none;border-radius:var(--r);
+  padding:13px;font-family:var(--dp);font-size:14px;font-weight:700;cursor:pointer;
+  letter-spacing:-.01em;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-submit:hover{background:var(--a2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(200,245,90,.2)}
+.btn-submit:active{transform:translateY(0)}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.sp{width:14px;height:14px;border-radius:50%;border:2px solid rgba(0,0,0,.2);border-top-color:#07070a;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Divider */
+.form-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+.form-divider::before,.form-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.form-divider span{font-family:var(--mono);font-size:10px;color:var(--text3)}
+
+/* Forgot link */
+.forgot-link{font-size:12px;color:var(--blue);text-decoration:none;cursor:pointer;transition:color .15s;background:none;border:none;font-family:var(--sans)}
+.forgot-link:hover{color:var(--text)}
+
+/* Alert banner */
+.auth-alert{
+  padding:11px 14px;border-radius:var(--r);margin-bottom:18px;
+  font-size:12px;display:none;font-family:var(--mono);align-items:center;gap:8px;
+}
+.auth-alert.show{display:flex}
+.auth-alert.ok{background:rgba(77,230,160,.1);border:1px solid rgba(77,230,160,.2);color:var(--green)}
+.auth-alert.err{background:rgba(245,90,90,.1);border:1px solid rgba(245,90,90,.2);color:var(--red)}
+.auth-alert.info{background:rgba(90,200,245,.1);border:1px solid rgba(90,200,245,.2);color:var(--blue)}
+
+/* Rate limit indicator */
+.rate-indicator{font-family:var(--mono);font-size:10px;color:var(--orange);margin-bottom:12px;display:none}
+.rate-indicator.show{display:block}
+
+/* Panel transitions */
+.auth-panel{display:none;animation:fadeUp .3s ease}
+.auth-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Forgot password panel */
+.back-btn{
+  display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;
+  color:var(--text3);cursor:pointer;background:none;border:none;margin-bottom:24px;
+  transition:color .15s;
+}
+.back-btn:hover{color:var(--text)}
+
+/* Success screen */
+.success-screen{text-align:center;padding:20px 0}
+.success-icon{font-size:48px;margin-bottom:16px;animation:pop .4s cubic-bezier(.68,-0.55,.27,1.55)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.success-title{font-family:var(--dp);font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px}
+.success-sub{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:24px}
+
+/* User avatar in header (shown when logged in) */
+.user-bar{
+  display:none;align-items:center;gap:10px;padding:10px 14px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:20px;
+}
+.user-bar.show{display:flex}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--dp);font-size:13px;font-weight:700;color:#07070a;flex-shrink:0;
+}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-email{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.btn-go{
+  background:var(--accent);color:#07070a;border:none;border-radius:6px;
+  font-family:var(--dp);font-size:12px;font-weight:700;padding:6px 14px;
+  cursor:pointer;transition:all .15s;
+}
+.btn-go:hover{background:var(--a2)}
+
+/* Footer */
+.auth-footer{margin-top:24px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--text3)}
+
+/* ── TOAST ── */
+.toast-stack{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column-reverse;gap:6px}
+.toast{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:9px 14px;font-family:var(--mono);font-size:11px;color:var(--text2);box-shadow:var(--sh2);animation:tin .3s ease;min-width:180px}
+.toast.ok{border-color:rgba(200,245,90,.3);color:var(--accent)}
+.toast.err{border-color:rgba(245,90,90,.3);color:var(--red)}
+.toast.info{border-color:rgba(90,200,245,.3);color:var(--blue)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="toast-stack" id="toast-stack"></div>
+
+<div class="auth-layout">
+
+  <!-- LEFT PANEL — BRANDING -->
+  <div class="left-panel">
+    <div class="glow-orb orb1"></div>
+    <div class="glow-orb orb2"></div>
+
+    <div class="brand">
+      <div class="brand-logo">
+        <div class="brand-icon">S</div>
+        <span class="brand-name">StudyFlow<span class="brand-ver"> v5.1</span></span>
+      </div>
+      <div class="left-hero">
+        <div class="left-title">Tu sistema<br>operativo para<br><span>crecer</span>.</div>
+        <div class="left-sub">Trabaja + estudia maestría al mismo tiempo sin perder el control. Todo lo que necesitas en un solo lugar.</div>
+      </div>
+      <div class="feature-list">
+        <div class="feature-item"><div class="fi-icon">🎓</div><div class="fi-body"><div class="fi-name">Analizar Clase con IA</div><div class="fi-desc">12 modos HyperThink premium</div></div></div>
+        <div class="feature-item"><div class="fi-icon">🎯</div><div class="fi-body"><div class="fi-name">Command Center</div><div class="fi-desc">Tareas, materias y progreso</div></div></div>
+        <div class="feature-item"><div class="fi-icon">🎴</div><div class="fi-body"><div class="fi-name">Flashcards + Pomodoro</div><div class="fi-desc">Estudio activo e inteligente</div></div></div>
+        <div class="feature-item"><div class="fi-icon">🔬</div><div class="fi-body"><div class="fi-name">Research Vault</div><div class="fi-desc">Referencias y papers organizados</div></div></div>
+      </div>
+    </div>
+
+    <div class="left-footer">© 2025 GAPT Project · thegaptproject.com</div>
+  </div>
+
+  <!-- RIGHT PANEL — FORMS -->
+  <div class="right-panel">
+    <div class="auth-box">
+
+      <!-- Already logged in bar -->
+      <div class="user-bar" id="user-bar">
+        <div class="user-avatar" id="user-avatar">G</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Cargando...</div>
+          <div class="user-email" id="user-email"></div>
+        </div>
+        <button class="btn-go" onclick="goToApp()">Entrar →</button>
+      </div>
+
+      <!-- Rate limit warning -->
+      <div class="rate-indicator" id="rate-msg">⚠ Demasiados intentos. Espera <span id="rate-cd">30</span>s.</div>
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs" id="auth-tabs">
+        <button class="auth-tab active" onclick="showPanel('login')">Iniciar Sesión</button>
+        <button class="auth-tab" onclick="showPanel('signup')">Crear Cuenta</button>
+      </div>
+
+      <!-- ─── LOGIN PANEL ─── -->
+      <div class="auth-panel active" id="panel-login">
+        <div class="auth-heading">Bienvenido de vuelta</div>
+        <div class="auth-sub">Ingresa con tu correo y contraseña.</div>
+
+        <div class="auth-alert" id="login-alert"></div>
+
+        <div class="form-group">
+          <label class="form-label">CORREO ELECTRÓNICO</label>
+          <input class="form-input" id="login-email" type="email" placeholder="tu@correo.com" autocomplete="email">
+          <div class="form-error" id="login-email-err">Ingresa un correo válido.</div>
+        </div>
+
+        <div class="form-group">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label class="form-label" style="margin-bottom:0">CONTRASEÑA</label>
+            <button class="forgot-link" onclick="showPanel('forgot')">¿Olvidaste tu contraseña?</button>
+          </div>
+          <div class="form-input-wrap">
+            <input class="form-input has-icon" id="login-pwd" type="password" placeholder="Tu contraseña" autocomplete="current-password">
+            <button class="form-input-icon" onclick="togglePwd('login-pwd',this)" type="button">👁</button>
+          </div>
+          <div class="form-error" id="login-pwd-err">Ingresa tu contraseña.</div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+          <label class="form-check" style="margin-bottom:0;cursor:pointer">
+            <input type="checkbox" class="form-check-box" id="remember-me">
+            <span class="form-check-lbl">Recordarme</span>
+          </label>
+        </div>
+
+        <button class="btn-submit" id="login-btn" onclick="doLogin()">
+          <span id="login-btn-txt">Iniciar Sesión</span>
+        </button>
+
+        <div class="form-divider"><span>¿No tienes cuenta?</span></div>
+        <button class="btn-submit" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border2)" onclick="showPanel('signup')">
+          Crear cuenta gratis
+        </button>
+
+        <div class="form-divider"><span>o ingresa sin contraseña</span></div>
+        <button class="btn-submit" id="magic-btn" onclick="showPanel('magic')"
+          style="background:transparent;color:var(--purple);border:1px solid rgba(176,96,240,.3)">
+          ⚡ Enviarme Magic Link
+        </button>
+
+        <div class="auth-footer">Acceso restringido · Solo usuarios autorizados</div>
+      </div>
+
+      <!-- ─── MAGIC LINK PANEL ─── -->
+      <div class="auth-panel" id="panel-magic">
+        <button class="back-btn" onclick="showPanel('login')">← Volver al login</button>
+        <div class="auth-heading">Magic Link</div>
+        <div class="auth-sub">Te enviamos un enlace al correo. Un clic y entras directo, sin contraseña.</div>
+
+        <div class="auth-alert" id="magic-alert"></div>
+
+        <div class="form-group">
+          <label class="form-label">CORREO ELECTRÓNICO</label>
+          <input class="fi form-input" id="magic-email" type="email" placeholder="tu@correo.com" autocomplete="email">
+          <div class="form-error" id="magic-email-err">Ingresa un correo válido.</div>
+        </div>
+
+        <button class="btn-submit" id="magic-send-btn" onclick="doMagicLink()"
+          style="background:var(--purple);color:#fff">
+          <span id="magic-send-txt">⚡ Enviar Magic Link</span>
+        </button>
+
+        <div class="auth-footer">El enlace expira en 10 minutos · Solo funciona una vez</div>
+      </div>
+
+      <!-- ─── SIGN UP PANEL ─── -->
+      <div class="auth-panel" id="panel-signup">
+        <div class="auth-heading">Crear cuenta</div>
+        <div class="auth-sub">Únete a StudyFlow y empieza a estudiar smarter.</div>
+
+        <div class="auth-alert" id="signup-alert"></div>
+
+        <div class="name-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">NOMBRE</label>
+            <input class="form-input" id="su-name" type="text" placeholder="Gustavo" autocomplete="given-name">
+            <div class="form-error" id="su-name-err">Ingresa tu nombre.</div>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">APELLIDO</label>
+            <input class="form-input" id="su-last" type="text" placeholder="Pastrana" autocomplete="family-name">
+            <div class="form-error" id="su-last-err">Ingresa tu apellido.</div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:14px">
+          <label class="form-label">CORREO ELECTRÓNICO</label>
+          <input class="form-input" id="su-email" type="email" placeholder="tu@correo.com" autocomplete="email">
+          <div class="form-error" id="su-email-err">Ingresa un correo válido.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">CONTRASEÑA</label>
+          <div class="form-input-wrap">
+            <input class="form-input has-icon" id="su-pwd" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="checkPwdStrength(this.value)">
+            <button class="form-input-icon" onclick="togglePwd('su-pwd',this)" type="button">👁</button>
+          </div>
+          <div class="form-error" id="su-pwd-err">La contraseña debe tener al menos 8 caracteres.</div>
+          <div class="pwd-strength" id="pwd-strength">
+            <div class="pwd-bars">
+              <div class="pwd-bar" id="pb1"></div>
+              <div class="pwd-bar" id="pb2"></div>
+              <div class="pwd-bar" id="pb3"></div>
+              <div class="pwd-bar" id="pb4"></div>
+            </div>
+            <div class="pwd-label" id="pwd-label">Contraseña débil</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">CONFIRMAR CONTRASEÑA</label>
+          <div class="form-input-wrap">
+            <input class="form-input has-icon" id="su-pwd2" type="password" placeholder="Repite la contraseña" autocomplete="new-password">
+            <button class="form-input-icon" onclick="togglePwd('su-pwd2',this)" type="button">👁</button>
+          </div>
+          <div class="form-error" id="su-pwd2-err">Las contraseñas no coinciden.</div>
+        </div>
+
+        <label class="form-check">
+          <input type="checkbox" class="form-check-box" id="su-terms">
+          <span class="form-check-lbl">Acepto los <a href="#" onclick="return false">Términos de uso</a> y <a href="#" onclick="return false">Política de privacidad</a></span>
+        </label>
+
+        <button class="btn-submit" id="signup-btn" onclick="doSignup()">
+          <span id="signup-btn-txt">Crear mi cuenta</span>
+        </button>
+
+        <div class="auth-footer">Ya tienes cuenta? <button class="forgot-link" onclick="showPanel('login')" style="font-size:12px">Inicia sesión</button></div>
+      </div>
+
+      <!-- ─── FORGOT PASSWORD PANEL ─── -->
+      <div class="auth-panel" id="panel-forgot">
+        <button class="back-btn" onclick="showPanel('login')">← Volver al login</button>
+        <div class="auth-heading">Recuperar acceso</div>
+        <div class="auth-sub">Ingresa tu correo y te enviamos un enlace para crear una nueva contraseña.</div>
+
+        <div class="auth-alert" id="forgot-alert"></div>
+
+        <div class="form-group">
+          <label class="form-label">CORREO ELECTRÓNICO</label>
+          <input class="form-input" id="forgot-email" type="email" placeholder="tu@correo.com" autocomplete="email">
+          <div class="form-error" id="forgot-email-err">Ingresa un correo válido.</div>
+        </div>
+
+        <button class="btn-submit" id="forgot-btn" onclick="doForgot()">
+          <span id="forgot-btn-txt">Enviar enlace de recuperación</span>
+        </button>
+      </div>
+
+      <!-- ─── SUCCESS PANEL ─── -->
+      <div class="auth-panel" id="panel-success">
+        <div class="success-screen">
+          <div class="success-icon">✅</div>
+          <div class="success-title" id="success-title">¡Cuenta creada!</div>
+          <div class="success-sub" id="success-sub">Revisa tu correo para confirmar tu cuenta. Una vez confirmada podrás iniciar sesión.</div>
+          <button class="btn-submit" onclick="showPanel('login')">Ir al login</button>
+        </div>
+      </div>
+
+      <!-- ─── RESET PASSWORD PANEL ─── -->
+      <div class="auth-panel" id="panel-reset">
+        <div class="auth-heading">Nueva contraseña</div>
+        <div class="auth-sub">Crea una contraseña segura para tu cuenta.</div>
+
+        <div class="auth-alert" id="reset-alert"></div>
+
+        <div class="form-group">
+          <label class="form-label">NUEVA CONTRASEÑA</label>
+          <div class="form-input-wrap">
+            <input class="form-input has-icon" id="reset-pwd" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="checkPwdStrengthReset(this.value)">
+            <button class="form-input-icon" onclick="togglePwd('reset-pwd',this)" type="button">👁</button>
+          </div>
+          <div class="form-error" id="reset-pwd-err">La contraseña debe tener al menos 8 caracteres.</div>
+          <div class="pwd-strength" id="pwd-strength-reset">
+            <div class="pwd-bars">
+              <div class="pwd-bar" id="rpb1"></div>
+              <div class="pwd-bar" id="rpb2"></div>
+              <div class="pwd-bar" id="rpb3"></div>
+              <div class="pwd-bar" id="rpb4"></div>
+            </div>
+            <div class="pwd-label" id="reset-pwd-label">Contraseña débil</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">CONFIRMAR CONTRASEÑA</label>
+          <div class="form-input-wrap">
+            <input class="form-input has-icon" id="reset-pwd2" type="password" placeholder="Repite la contraseña" autocomplete="new-password">
+            <button class="form-input-icon" onclick="togglePwd('reset-pwd2',this)" type="button">👁</button>
+          </div>
+          <div class="form-error" id="reset-pwd2-err">Las contraseñas no coinciden.</div>
+        </div>
+
+        <button class="btn-submit" id="reset-btn" onclick="doResetPassword()">
+          <span id="reset-btn-txt">Guardar nueva contraseña</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  STUDYFLOW AUTH — Supabase + EmailJS
+//  ⚠️  REEMPLAZA ESTOS VALORES CON LOS TUYOS
+// ══════════════════════════════════════════════════════════════
+
+const SUPABASE_URL  = 'https://jdwjngoqiswhhbvoaare.supabase.co';     // ← Supabase URL
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impkd2puZ29xaXN3aGhidm9hYXJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1MDY5OTYsImV4cCI6MjA5MzA4Mjk5Nn0.j_2spg3LVNrB9rFoTcoio8ZGDzcLBI-CjZPmlli4sHs';                // ← Supabase anon key
+const EMAILJS_PK    = 'TU_EMAILJS_PUBLIC_KEY';               // ← EmailJS public key
+const EMAILJS_SVC   = 'TU_EMAILJS_SERVICE_ID';               // ← EmailJS service ID
+const EMAILJS_TPL_W = 'TU_TEMPLATE_BIENVENIDA';              // ← Template bienvenida
+const EMAILJS_TPL_A = 'TU_TEMPLATE_ADMIN';                   // ← Template admin notif
+const ADMIN_EMAIL   = 'tu@correo.com';                        // ← Tu correo admin
+const APP_URL       = '/studyflow/';                          // ← URL de la app
+const LOGIN_URL_FULL = `${window.location.origin}/studyflow/login.html`; // ← todos los links apuntan aquí
+
+// ── INIT ──────────────────────────────────────────────────────
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+emailjs.init(EMAILJS_PK);
+
+// ── RATE LIMITING ──────────────────────────────────────────────
+const RATE = {
+  attempts: 0, blocked: false, timer: null, MAX: 5, BLOCK_SECS: 30,
+  hit(){
+    this.attempts++;
+    if(this.attempts >= this.MAX){ this.block(); return false; }
+    return true;
+  },
+  block(){
+    this.blocked = true;
+    let secs = this.BLOCK_SECS;
+    show('rate-msg', true);
+    document.getElementById('rate-cd').textContent = secs;
+    this.timer = setInterval(()=>{
+      secs--;
+      document.getElementById('rate-cd').textContent = secs;
+      if(secs <= 0){ clearInterval(this.timer); this.blocked=false; this.attempts=0; show('rate-msg',false); }
+    }, 1000);
+  },
+  check(){ return !this.blocked; }
+};
+
+// ── UTILS ──────────────────────────────────────────────────────
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const $  = id => document.getElementById(id);
+const show = (id, on) => $(id)?.classList.toggle('show', on);
+function toast(msg, type='info', ms=3600){
+  const s=$('toast-stack'); const el=document.createElement('div');
+  el.className=`toast ${type}`; el.textContent=msg; s.prepend(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='all .3s';setTimeout(()=>el.remove(),300)},ms);
+}
+function setAlert(id, msg, type){
+  const el=$(id); if(!el) return;
+  el.textContent=msg; el.className=`auth-alert ${type} show`;
+}
+function clearAlert(id){ const el=$(id); if(el){ el.textContent=''; el.className='auth-alert'; } }
+function setLoading(btnId, txtId, loading, defaultTxt=''){
+  const btn=$(btnId); const txt=$(txtId);
+  btn.disabled=loading;
+  txt.innerHTML=loading ? '<span class="sp"></span> Procesando...' : defaultTxt;
+}
+
+// Input sanitization
+function sanitize(str){ return String(str||'').trim().replace(/<[^>]*>/g,'').slice(0,200); }
+function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function isStrongPwd(p){ return p.length>=8 && /[A-Z]/.test(p) && /[0-9]/.test(p); }
+
+// Show/hide password
+function togglePwd(inputId, btn){
+  const inp=$(inputId); if(!inp) return;
+  const isHidden=inp.type==='password';
+  inp.type=isHidden?'text':'password';
+  btn.textContent=isHidden?'🙈':'👁';
+}
+
+// Panel switching
+function showPanel(name){
+  document.querySelectorAll('.auth-panel').forEach(p=>p.classList.remove('active'));
+  $(`panel-${name}`)?.classList.add('active');
+  // Update tabs
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>{
+    t.classList.toggle('active', (i===0&&name==='login')||(i===1&&name==='signup'));
+  });
+  // Show/hide tabs
+  const hideTabs = ['forgot','success','reset','magic'];
+  $('auth-tabs').style.display = hideTabs.includes(name) ? 'none' : 'flex';
+  // Clear alerts
+  ['login-alert','signup-alert','forgot-alert','magic-alert','reset-alert'].forEach(clearAlert);
+}
+
+// Password strength
+function checkPwdStrength(pwd){
+  const el=$('pwd-strength'); if(!el) return;
+  el.classList.toggle('show', pwd.length>0);
+  const bars=['pb1','pb2','pb3','pb4'];
+  bars.forEach(b=>{ const el=$(b); el.className='pwd-bar'; });
+  let score=0; let cls=''; let label='';
+  if(pwd.length>=6) score++;
+  if(pwd.length>=8) score++;
+  if(/[A-Z]/.test(pwd)&&/[0-9]/.test(pwd)) score++;
+  if(pwd.length>=12&&/[^A-Za-z0-9]/.test(pwd)) score++;
+  const map=['w','f','g','s'];
+  const labels=['Muy débil','Débil','Buena','Fuerte 🔐'];
+  for(let i=0;i<score;i++){ const b=$(bars[i]); b.classList.add(map[score-1]); }
+  $('pwd-label').textContent=labels[score-1]||'Contraseña débil';
+}
+
+// ── CHECK SESSION ON LOAD ──────────────────────────────────────
+async function checkSession(){
+  const {data:{session}} = await sbClient.auth.getSession();
+  if(session){
+    const user=session.user;
+    const name=user.user_metadata?.full_name||user.email;
+    const initials=name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    $('user-avatar').textContent=initials;
+    $('user-name').textContent=name;
+    $('user-email').textContent=user.email;
+    $('user-bar').classList.add('show');
+    // Auto-redirect if session valid and came from app
+    const redirect=sessionStorage.getItem('sf_redirect');
+    if(redirect){ sessionStorage.removeItem('sf_redirect'); goToApp(); }
+  }
+}
+
+function goToApp(){ window.location.href=APP_URL; }
+
+// ── LOGIN ──────────────────────────────────────────────────────
+async function doLogin(){
+  if(!RATE.check()){ toast('Demasiados intentos. Espera un momento.','err'); return; }
+  clearAlert('login-alert');
+  const email=sanitize($('login-email').value);
+  const pwd=$('login-pwd').value;
+  let valid=true;
+  if(!isValidEmail(email)){ show('login-email-err',true); $('login-email').classList.add('error'); valid=false; }
+  else{ show('login-email-err',false); $('login-email').classList.remove('error'); }
+  if(!pwd){ show('login-pwd-err',true); $('login-pwd').classList.add('error'); valid=false; }
+  else{ show('login-pwd-err',false); $('login-pwd').classList.remove('error'); }
+  if(!valid) return;
+
+  setLoading('login-btn','login-btn-txt',true);
+  try{
+    const {data,error}=await sbClient.auth.signInWithPassword({ email, password:pwd });
+    if(error) throw error;
+    // Remember me — persist session
+    if($('remember-me').checked){
+      localStorage.setItem('sf_remember','1');
+    }
+    toast('¡Bienvenido! Entrando...','ok');
+    setTimeout(()=>goToApp(), 800);
+  }catch(err){
+    RATE.hit();
+    const msg=mapAuthError(err.message);
+    setAlert('login-alert', msg, 'err');
+    setLoading('login-btn','login-btn-txt',false,'Iniciar Sesión');
+  }
+}
+
+// ── SIGN UP ────────────────────────────────────────────────────
+async function doSignup(){
+  clearAlert('signup-alert');
+  const name=sanitize($('su-name').value);
+  const last=sanitize($('su-last').value);
+  const email=sanitize($('su-email').value);
+  const pwd=$('su-pwd').value;
+  const pwd2=$('su-pwd2').value;
+  const terms=$('su-terms').checked;
+  let valid=true;
+
+  if(!name){ show('su-name-err',true); $('su-name').classList.add('error'); valid=false; }
+  else{ show('su-name-err',false); $('su-name').classList.remove('error'); }
+  if(!last){ show('su-last-err',true); $('su-last').classList.add('error'); valid=false; }
+  else{ show('su-last-err',false); $('su-last').classList.remove('error'); }
+  if(!isValidEmail(email)){ show('su-email-err',true); $('su-email').classList.add('error'); valid=false; }
+  else{ show('su-email-err',false); $('su-email').classList.remove('error'); }
+  if(pwd.length<8){ show('su-pwd-err',true); $('su-pwd').classList.add('error'); valid=false; }
+  else{ show('su-pwd-err',false); $('su-pwd').classList.remove('error'); }
+  if(pwd!==pwd2){ show('su-pwd2-err',true); $('su-pwd2').classList.add('error'); valid=false;
+    $('su-pwd2-err').textContent='Las contraseñas no coinciden.'; }
+  else{ show('su-pwd2-err',false); $('su-pwd2').classList.remove('error'); }
+  if(!terms){ setAlert('signup-alert','Debes aceptar los términos de uso.','err'); valid=false; }
+  if(!valid) return;
+
+  setLoading('signup-btn','signup-btn-txt',true);
+  try{
+    const fullName=`${name} ${last}`;
+    const {data,error}=await sbClient.auth.signUp({
+      email,
+      password:pwd,
+      options:{
+        data:{ full_name:fullName, first_name:name, last_name:last },
+        emailRedirectTo:`${window.location.origin}/studyflow/login.html`
+      }
+    });
+    if(error) throw error;
+
+    // Send welcome email via EmailJS
+    sendWelcomeEmail(name, email).catch(()=>{});
+    // Send admin notification
+    sendAdminNotif(fullName, email).catch(()=>{});
+
+    // Show success
+    showPanel('success');
+  }catch(err){
+    const msg=mapAuthError(err.message);
+    setAlert('signup-alert', msg, 'err');
+    setLoading('signup-btn','signup-btn-txt',false,'Crear mi cuenta');
+  }
+}
+
+// ── MAGIC LINK ────────────────────────────────────────────────
+async function doMagicLink(){
+  clearAlert('magic-alert');
+  const email = sanitize($('magic-email').value);
+  if(!isValidEmail(email)){
+    show('magic-email-err', true);
+    $('magic-email').classList.add('error');
+    return;
+  }
+  show('magic-email-err', false);
+  $('magic-email').classList.remove('error');
+
+  if(!RATE.check()){ toast('Demasiados intentos. Espera un momento.','err'); return; }
+  setLoading('magic-send-btn', 'magic-send-txt', true);
+
+  try{
+    const {error} = await sbClient.auth.signInWithOtp({
+      email,
+      options:{
+        emailRedirectTo: `${window.location.origin}/studyflow/login.html`,
+        shouldCreateUser: false  // solo usuarios ya registrados
+      }
+    });
+    if(error) throw error;
+    setAlert('magic-alert', '✅ Magic Link enviado. Revisa tu correo (incluyendo spam).', 'ok');
+    setLoading('magic-send-btn', 'magic-send-txt', false, '⚡ Enviar Magic Link');
+    toast('Magic Link enviado 📧', 'ok', 5000);
+  }catch(err){
+    RATE.hit();
+    // If user not found, show friendly message
+    const msg = err.message.includes('not found') || err.message.includes('registered')
+      ? '❌ Este correo no tiene cuenta en StudyFlow. Regístrate primero.'
+      : mapAuthError(err.message);
+    setAlert('magic-alert', msg, 'err');
+    setLoading('magic-send-btn', 'magic-send-txt', false, '⚡ Enviar Magic Link');
+  }
+}
+
+// ── FORGOT PASSWORD ────────────────────────────────────────────
+async function doForgot(){
+  clearAlert('forgot-alert');
+  const email=sanitize($('forgot-email').value);
+  if(!isValidEmail(email)){
+    show('forgot-email-err',true); $('forgot-email').classList.add('error'); return;
+  }
+  show('forgot-email-err',false); $('forgot-email').classList.remove('error');
+  setLoading('forgot-btn','forgot-btn-txt',true);
+  try{
+    const {error}=await sbClient.auth.resetPasswordForEmail(email,{
+      redirectTo:`${window.location.origin}/studyflow/login.html`
+    });
+    if(error) throw error;
+    setAlert('forgot-alert','✅ Enlace enviado. Revisa tu correo (incluyendo spam).','ok');
+    setLoading('forgot-btn','forgot-btn-txt',false,'Enviar enlace de recuperación');
+    toast('Email de recuperación enviado','ok');
+  }catch(err){
+    setAlert('forgot-alert', mapAuthError(err.message),'err');
+    setLoading('forgot-btn','forgot-btn-txt',false,'Enviar enlace de recuperación');
+  }
+}
+
+// ── EMAIL FUNCTIONS ────────────────────────────────────────────
+async function sendWelcomeEmail(name, email){
+  if(EMAILJS_PK==='TU_EMAILJS_PUBLIC_KEY') return; // not configured yet
+  return emailjs.send(EMAILJS_SVC, EMAILJS_TPL_W, {
+    to_name:  name,
+    to_email: email,
+    from_name:'StudyFlow',
+    reply_to: ADMIN_EMAIL,
+  });
+}
+async function sendAdminNotif(fullName, email){
+  if(EMAILJS_PK==='TU_EMAILJS_PUBLIC_KEY') return;
+  return emailjs.send(EMAILJS_SVC, EMAILJS_TPL_A, {
+    user_name:  fullName,
+    user_email: email,
+    date:       new Date().toLocaleString('es-MX'),
+    to_email:   ADMIN_EMAIL,
+  });
+}
+
+// ── ERROR MESSAGES ─────────────────────────────────────────────
+function mapAuthError(msg){
+  if(!msg) return 'Ocurrió un error. Intenta de nuevo.';
+  if(msg.includes('Invalid login')) return '❌ Correo o contraseña incorrectos.';
+  if(msg.includes('Email not confirmed')) return '📧 Confirma tu correo antes de iniciar sesión.';
+  if(msg.includes('already registered')) return '⚠️ Este correo ya tiene una cuenta. Inicia sesión.';
+  if(msg.includes('Password should')) return '⚠️ La contraseña debe tener al menos 6 caracteres.';
+  if(msg.includes('rate limit')) return '⏱ Demasiados intentos. Espera unos minutos.';
+  if(msg.includes('network')) return '🌐 Sin conexión. Verifica tu internet.';
+  return '❌ ' + msg;
+}
+
+// ── KEYBOARD SUPPORT ──────────────────────────────────────────
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    const active=document.querySelector('.auth-panel.active')?.id;
+    if(active==='panel-login') doLogin();
+    else if(active==='panel-signup') doSignup();
+    else if(active==='panel-forgot') doForgot();
+    else if(active==='panel-reset') doResetPassword();
+    else if(active==='panel-magic') doMagicLink();
+  }
+});
+
+// ── RESET PASSWORD ────────────────────────────────────────────
+function checkPwdStrengthReset(pwd){
+  const el=document.getElementById('pwd-strength-reset');if(!el)return;
+  el.classList.toggle('show',pwd.length>0);
+  const bars=['rpb1','rpb2','rpb3','rpb4'];
+  bars.forEach(b=>{const el=document.getElementById(b);el.className='pwd-bar';});
+  let score=0;
+  if(pwd.length>=6)score++;
+  if(pwd.length>=8)score++;
+  if(/[A-Z]/.test(pwd)&&/[0-9]/.test(pwd))score++;
+  if(pwd.length>=12&&/[^A-Za-z0-9]/.test(pwd))score++;
+  const map=['w','f','g','s'];
+  const labels=['Muy débil','Débil','Buena','Fuerte 🔐'];
+  for(let i=0;i<score;i++){const b=document.getElementById(bars[i]);b.classList.add(map[score-1]);}
+  const lbl=document.getElementById('reset-pwd-label');
+  if(lbl)lbl.textContent=labels[score-1]||'Contraseña débil';
+}
+
+async function doResetPassword(){
+  clearAlert('reset-alert');
+  const pwd=document.getElementById('reset-pwd').value;
+  const pwd2=document.getElementById('reset-pwd2').value;
+  let valid=true;
+  if(pwd.length<8){show('reset-pwd-err',true);document.getElementById('reset-pwd').classList.add('error');valid=false;}
+  else{show('reset-pwd-err',false);document.getElementById('reset-pwd').classList.remove('error');}
+  if(pwd!==pwd2){
+    show('reset-pwd2-err',true);document.getElementById('reset-pwd2').classList.add('error');
+    document.getElementById('reset-pwd2-err').textContent='Las contraseñas no coinciden.';valid=false;
+  }else{show('reset-pwd2-err',false);document.getElementById('reset-pwd2').classList.remove('error');}
+  if(!valid)return;
+  setLoading('reset-btn','reset-btn-txt',true);
+  try{
+    const {error}=await sbClient.auth.updateUser({password:pwd});
+    if(error)throw error;
+    // Show success
+    const title=document.getElementById('success-title');
+    const sub=document.getElementById('success-sub');
+    if(title)title.textContent='¡Contraseña actualizada!';
+    if(sub)sub.textContent='Tu contraseña fue cambiada exitosamente. Ya puedes iniciar sesión.';
+    showPanel('success');
+    toast('Contraseña actualizada correctamente','ok',5000);
+  }catch(err){
+    setAlert('reset-alert',mapAuthError(err.message),'err');
+    setLoading('reset-btn','reset-btn-txt',false,'Guardar nueva contraseña');
+  }
+}
+
+// ── DETECT ALL EMAIL LINK TYPES IN URL ───────────────────────
+// Handles: recovery, signup, invite, email_change, magiclink, reauthentication
+async function checkURLHash(){
+  // Supabase can send tokens in hash (#) or query params (?)
+  const hash   = window.location.hash;
+  const search = window.location.search;
+
+  // Parse both sources
+  const hashParams  = new URLSearchParams(hash.replace('#',''));
+  const queryParams = new URLSearchParams(search);
+
+  // Prefer hash params (Supabase default), fallback to query
+  const type         = hashParams.get('type')          || queryParams.get('type');
+  const accessToken  = hashParams.get('access_token')  || queryParams.get('access_token');
+  const refreshToken = hashParams.get('refresh_token') || queryParams.get('refresh_token') || '';
+  const errorDesc    = hashParams.get('error_description') || queryParams.get('error_description');
+
+  // Show error if Supabase returned one (e.g. expired link)
+  if(errorDesc){
+    showPanel('login');
+    setAlert('login-alert', '❌ ' + decodeURIComponent(errorDesc.replace(/\+/g,' ')), 'err');
+    history.replaceState(null, null, window.location.pathname);
+    return;
+  }
+
+  if(!type || !accessToken) return;
+
+  // Set the Supabase session from the tokens in the URL
+  const {data, error} = await sbClient.auth.setSession({
+    access_token:  accessToken,
+    refresh_token: refreshToken
+  });
+
+  // Clean URL immediately so tokens don't stay visible
+  history.replaceState(null, null, window.location.pathname);
+
+  if(error){
+    showPanel('login');
+    setAlert('login-alert', mapAuthError(error.message), 'err');
+    return;
+  }
+
+  // ── Handle each email type ──────────────────────────────────
+  switch(type){
+
+    // 1. Password recovery — show new password form
+    case 'recovery':
+      showPanel('reset');
+      document.getElementById('auth-tabs').style.display = 'none';
+      toast('Ingresa tu nueva contraseña 🔐', 'info', 5000);
+      break;
+
+    // 2. Signup confirmation — email confirmed, go to app
+    case 'signup':
+      showSuccessMsg(
+        '¡Correo confirmado! 🎉',
+        'Tu cuenta está activa. Entrando a StudyFlow...'
+      );
+      toast('¡Cuenta confirmada! Bienvenido', 'ok', 4000);
+      setTimeout(() => window.location.href = APP_URL, 1800);
+      break;
+
+    // 3. Invite — user accepted invite, set password
+    case 'invite':
+      showPanel('reset');
+      document.getElementById('auth-tabs').style.display = 'none';
+      document.getElementById('reset-btn-txt') && (document.getElementById('reset-btn-txt').textContent = 'Activar mi cuenta');
+      // Update heading
+      const rh = document.querySelector('#panel-reset .auth-heading');
+      const rs = document.querySelector('#panel-reset .auth-sub');
+      if(rh) rh.textContent = 'Activar tu cuenta';
+      if(rs) rs.textContent = 'Crea una contraseña para empezar a usar StudyFlow.';
+      toast('¡Fuiste invitado! Crea tu contraseña 🎓', 'ok', 5000);
+      break;
+
+    // 4. Email change confirmation
+    case 'email_change':
+      showSuccessMsg(
+        '¡Correo actualizado! 📧',
+        'Tu nuevo correo fue confirmado exitosamente.'
+      );
+      toast('Correo cambiado correctamente', 'ok', 5000);
+      setTimeout(() => window.location.href = APP_URL, 2000);
+      break;
+
+    // 5. Magic link login — already authenticated, go to app
+    case 'magiclink':
+      toast('¡Acceso instantáneo! Entrando... ⚡', 'ok', 3000);
+      setTimeout(() => window.location.href = APP_URL, 1000);
+      break;
+
+    // 6. Reauthentication — session refreshed, go to app
+    case 'reauthentication':
+      toast('Identidad verificada ✅', 'ok', 3000);
+      setTimeout(() => window.location.href = APP_URL, 1000);
+      break;
+
+    // Fallback — if unknown type but has valid session, go to app
+    default:
+      if(data?.session){
+        toast('Sesión iniciada', 'ok', 2000);
+        setTimeout(() => window.location.href = APP_URL, 800);
+      }
+      break;
+  }
+}
+
+// Helper to show success panel with custom message
+function showSuccessMsg(title, sub){
+  const t = document.getElementById('success-title');
+  const s = document.getElementById('success-sub');
+  if(t) t.textContent = title;
+  if(s) s.textContent = sub;
+  showPanel('success');
+  document.getElementById('auth-tabs').style.display = 'none';
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+checkURLHash();
+checkSession();
+</script>
+</body>
+</html>
