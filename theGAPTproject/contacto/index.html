@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contacto — THE GAPT PROJECT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<meta name="description" content="Ponte en contacto con THE GAPT PROJECT para nuevos proyectos o colaboraciones.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+.ct-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:64px;align-items:start}
+@media (max-width:900px){.ct-grid{grid-template-columns:1fr;gap:48px}}
+.ct-form{display:flex;flex-direction:column;gap:22px}
+.ct-row{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media (max-width:600px){.ct-row{grid-template-columns:1fr}}
+.ct-field{display:flex;flex-direction:column;gap:8px}
+.ct-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.ct-lbl small{text-transform:none;letter-spacing:0;font-size:10px;opacity:.7}
+.ct-field input, .ct-field select, .ct-field textarea{
+  font-family:'Archivo',sans-serif;font-size:14px;color:var(--ink);
+  background:transparent;border:none;border-bottom:1px solid var(--line);
+  padding:10px 0;outline:none;width:100%;transition:border-color .25s, color .25s;
+}
+.ct-field input:focus, .ct-field select:focus, .ct-field textarea:focus{border-color:var(--accent)}
+.ct-field textarea{resize:vertical;min-height:120px;font-family:'Archivo',sans-serif}
+.ct-field select{cursor:none;-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 14px) 50%,calc(100% - 9px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:30px}
+
+.ct-check{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink-soft);line-height:1.5}
+.ct-check input{margin-top:3px;accent-color:var(--accent)}
+.ct-check a{color:var(--ink);border-bottom:1px solid var(--accent);text-decoration:none}
+
+.ct-submit{
+  display:inline-flex;align-items:center;justify-content:space-between;gap:18px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  background:var(--ink);color:var(--bg);border:none;padding:18px 22px;cursor:none;
+  align-self:flex-start;min-width:240px;transition:background .25s, color .25s, gap .25s;
+}
+.ct-submit:hover{background:var(--accent);color:#fff;gap:28px}
+.ct-submit .arr{transition:transform .25s}
+.ct-submit:hover .arr{transform:translateX(4px)}
+
+.ct-info{display:flex;flex-direction:column;gap:24px;border-left:1px solid var(--line);padding-left:32px}
+@media (max-width:900px){.ct-info{border-left:none;border-top:1px solid var(--line);padding:24px 0 0}}
+.ct-block{display:flex;flex-direction:column;gap:6px}
+.ct-i-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.ct-i-email{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:700;font-size:clamp(20px,2vw,26px);color:var(--ink);text-decoration:none;border-bottom:1px solid var(--accent);align-self:flex-start;transition:color .25s}
+.ct-i-email:hover{color:var(--accent)}
+.ct-i-val{font-size:13.5px;line-height:1.6;color:var(--ink-soft)}
+.ct-i-val a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--accent)}
+
+.ct-ok{
+  background:var(--surface);border:2px solid var(--accent);padding:22px 24px;margin-bottom:24px;
+  font-size:14px;line-height:1.6;color:var(--ink);
+}
+.ct-ok strong{color:var(--accent);font-family:'IBM Plex Mono',monospace;letter-spacing:1.5px;font-weight:600;text-transform:uppercase;font-size:12px}
+</style>
+</head>
+
+<body>
+
+<!-- Cursor -->
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<!-- Scroll progress -->
+<div class="scroll-progress" aria-hidden="true"><div class="scroll-progress__bar" id="scrollBar"></div></div>
+
+<!-- Menu button (top-left) -->
+<button class="menu-btn" id="menuBtn" aria-label="Abrir menú" data-hover>
+  <span class="bar"></span>
+  <span class="bar"></span>
+  <span class="bar"></span>
+</button>
+<span class="menu-label" aria-hidden="true">_ Menú</span>
+
+<!-- Utility bar (top-right) -->
+<div class="utility-bar">
+  <div class="clock" aria-label="Hora local">
+    <span class="pulse"></span>
+    <span id="liveClock">MX · --:--:--</span>
+  </div>
+  <button class="theme-toggle" id="themeToggle" data-hover aria-label="Cambiar tema">
+    <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+  </button>
+</div>
+
+<!-- Menu overlay -->
+<aside class="menu" id="menu" aria-label="Menú principal">
+  <div class="menu__inner">
+    <nav class="menu__nav">
+      <a class="menu__link" href="/" data-hover><span class="num">01</span>Inicio</a>
+      <a class="menu__link" href="/roadmap" data-hover><span class="num">02</span>Roadmap</a>
+      <a class="menu__link" href="/contacto" data-hover><span class="num">03</span>Contacto</a>
+      <a class="menu__link" href="/aviso-de-privacidad" data-hover><span class="num">04</span>Aviso de Privacidad</a>
+    </nav>
+    <div class="menu__aside">
+      <div>
+        <div class="menu__label">_ Contacto</div>
+        <div class="menu__contact" style="margin-top:8px"><a href="mailto:hello@thegaptproject.com" data-hover>hello@thegaptproject.com</a></div>
+      </div>
+      <div class="menu__grad"></div>
+    </div>
+  </div>
+</aside>
+
+
+<header class="hero">
+  <div class="container">
+    <div class="hero__frame">
+      <span class="corner corner--tl" aria-hidden="true"></span>
+      <span class="corner corner--tr" aria-hidden="true"></span>
+      <span class="corner corner--bl" aria-hidden="true"></span>
+      <span class="corner corner--br" aria-hidden="true"></span>
+      <div class="kicker"><span class="dot"></span>03 / CONTACTO</div>
+      <h1 class="hero__title">
+        <span class="line"><span class="reveal" style="animation-delay:.2s">¿UN PROYECTO</span></span>
+        <span class="line"><span class="reveal" style="animation-delay:.35s">EN <em>MENTE</em>?</span></span>
+      </h1>
+      <p class="hero__sub">Para nuevos proyectos, consultas o colaboraciones. Llena el formulario o escríbenos directamente. Respondemos en menos de <strong>48 horas</strong>.</p>
+    </div>
+    <div class="grad-line animate-in" style="margin-top:60px"></div>
+  </div>
+</header>
+
+<section class="section reveal-on-scroll">
+  <div class="container">
+    <div class="ct-grid">
+
+      <!-- FORMULARIO -->
+      <form class="ct-form" id="contactForm" action="https://formsubmit.co/hello@thegaptproject.com" method="POST" novalidate>
+        <input type="hidden" name="_subject" value="Nuevo mensaje desde thegaptproject.com">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_next" value="https://thegaptproject.com/contacto?ok=1">
+        <input type="text" name="_honey" style="display:none">
+
+        <div class="ct-row">
+          <label class="ct-field">
+            <span class="ct-lbl">_ Nombre *</span>
+            <input type="text" name="nombre" required data-hover>
+          </label>
+          <label class="ct-field">
+            <span class="ct-lbl">_ Correo *</span>
+            <input type="email" name="email" required data-hover>
+          </label>
+        </div>
+        <label class="ct-field">
+          <span class="ct-lbl">_ Teléfono <small>(opcional)</small></span>
+          <input type="tel" name="telefono" data-hover>
+        </label>
+        <label class="ct-field">
+          <span class="ct-lbl">_ Tipo de proyecto</span>
+          <select name="tipo" data-hover>
+            <option value="">— Selecciona una opción —</option>
+            <option>Diseño arquitectónico</option>
+            <option>Diseño de interiores</option>
+            <option>Remodelación / ampliación</option>
+            <option>Consultoría</option>
+            <option>Colaboración</option>
+            <option>Otro</option>
+          </select>
+        </label>
+        <label class="ct-field">
+          <span class="ct-lbl">_ Mensaje *</span>
+          <textarea name="mensaje" rows="5" required data-hover></textarea>
+        </label>
+        <label class="ct-check">
+          <input type="checkbox" required>
+          <span>He leído y acepto el <a href="/aviso-de-privacidad" data-hover>Aviso de Privacidad</a>.</span>
+        </label>
+        <button type="submit" class="ct-submit" data-hover>
+          <span>Enviar mensaje</span>
+          <span class="arr">→</span>
+        </button>
+      </form>
+
+      <!-- INFO -->
+      <aside class="ct-info">
+        <div class="ct-block">
+          <div class="ct-i-lbl">_ Correo directo</div>
+          <a class="ct-i-email" href="mailto:hello@thegaptproject.com" data-hover>hello@thegaptproject.com</a>
+        </div>
+        <div class="ct-block">
+          <div class="ct-i-lbl">_ Asuntos legales</div>
+          <div class="ct-i-val"><a href="mailto:legal@thegaptproject.com" data-hover>legal@thegaptproject.com</a></div>
+        </div>
+        <div class="ct-block">
+          <div class="ct-i-lbl">_ Horario</div>
+          <div class="ct-i-val">Lunes a viernes<br>10:00 — 18:00 hrs (CDT)</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Mensaje de éxito si volvemos con ?ok=1
+  if (new URLSearchParams(location.search).get('ok')==='1') {
+    const f = document.getElementById('contactForm');
+    const ok = document.createElement('div');
+    ok.className='ct-ok';
+    ok.innerHTML='<strong>✓ Mensaje enviado.</strong><br>Gracias por escribir, te responderemos en menos de 48 horas.';
+    f.parentNode.insertBefore(ok, f);
+    f.style.display='none';
+    history.replaceState(null,'',location.pathname);
+  }
+</script>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div>
+        <div class="footer__mark">
+          <span class="lockmark"><span class="sym" aria-hidden="true"><svg viewBox="0 0 100 100" shape-rendering="crispEdges"><rect class="base" width="100" height="100"/><rect class="seam" x="57" width="6" height="100"/></svg></span><span class="wmk">GAPT<i class="stop"></i></span></span>
+          <span class="sub">THE PROJECT · NO TWO ALIKE</span>
+        </div>
+        <div class="footer__tag">_ Architecture &amp; Design Studio · Est. 2026</div>
+      </div>
+      <div class="footer__col">
+        <h4>_ Navegación</h4>
+        <ul>
+          <li><a href="/" data-hover>Inicio</a></li>
+          <li><a href="/roadmap" data-hover>Roadmap</a></li>
+          <li><a href="/contacto" data-hover>Contacto</a></li>
+          <li><a href="/aviso-de-privacidad" data-hover>Aviso de Privacidad</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>_ Acceso privado</h4>
+        <ul>
+          <li><a href="https://thegaptproject.com/studyflow/login" data-hover>StudyFlow ↗</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>_ Contacto</h4>
+        <p><a href="mailto:hello@thegaptproject.com" data-hover>hello@thegaptproject.com</a></p>
+        <p>Cuernavaca, Morelos · MX</p>
+      </div>
+    </div>
+    <div class="footer__grad"></div>
+    <div class="footer__bottom">
+      <span>© 2026 THE GAPT PROJECT · All rights reserved</span>
+      <span>thegaptproject.com</span>
+    </div>
+  </div>
+</footer>
+<script src="/app.js" defer></script>
+</body>
+</html>

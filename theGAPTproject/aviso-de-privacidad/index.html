@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviso de Privacidad — THE GAPT PROJECT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<meta name="description" content="Aviso de Privacidad Integral de THE GAPT PROJECT conforme a la LFPDPPP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+/* TOC */
+.toc-grid{display:grid;grid-template-columns:240px 1fr;gap:72px;align-items:start;padding:56px 0 80px}
+@media (max-width:1000px){.toc-grid{grid-template-columns:1fr;gap:32px}}
+.toc{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow:auto;padding-right:8px}
+.toc__title{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);padding-bottom:14px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.toc__list{list-style:none}
+.toc__link{display:flex;gap:14px;padding:7px 0;text-decoration:none;color:var(--muted);font-size:12.5px;line-height:1.4;transition:color .2s}
+.toc__link:hover{color:var(--ink)}
+.toc__link.active,.toc__link.active .toc__n{color:var(--accent)}
+.toc__n{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;flex:0 0 22px;color:var(--muted)}
+@media (max-width:1000px){.toc{position:static;max-height:none;padding:18px;border:1px solid var(--line)}}
+
+/* Sections */
+.av-sec{margin-bottom:72px;scroll-margin-top:96px}
+.av-sec__head{display:flex;align-items:baseline;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.av-sec__n{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:2px;color:var(--accent);font-weight:500}
+.av-sec__title{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:800;font-size:clamp(28px,4vw,40px);line-height:1.05;letter-spacing:-.005em;color:var(--ink)}
+.av-body{color:var(--ink-soft);font-size:15px;line-height:1.72;max-width:740px}
+.av-body p{margin-bottom:14px}
+.av-body p:last-child{margin-bottom:0}
+.av-body strong{color:var(--ink);font-weight:600}
+.av-body a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);transition:opacity .2s}
+.av-body a:hover{opacity:.7}
+.av-body h3{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:700;font-size:18px;letter-spacing:1px;text-transform:uppercase;margin:30px 0 14px;color:var(--ink);display:flex;align-items:center;gap:12px}
+.av-body h3::before{content:"";width:22px;height:2px;background:var(--accent);flex-shrink:0}
+.av-body ul{list-style:none;margin:10px 0 14px}
+.av-body li{position:relative;padding-left:22px;margin-bottom:8px}
+.av-body li::before{content:"";position:absolute;left:0;top:13px;width:12px;height:1px;background:var(--accent)}
+
+.callout{background:var(--surface);border:1px solid var(--line);padding:14px 18px;margin:8px 0;position:relative;transition:border-color .2s}
+.callout:hover{border-color:color-mix(in oklab, var(--ink) 20%, var(--line))}
+.callout::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.callout__tag{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:5px;font-weight:500}
+.callout__body{font-size:14px;color:var(--ink-soft);line-height:1.55}
+
+.highlight{border:2px solid var(--ink);padding:18px 22px;margin:6px 0 8px;display:flex;gap:16px;align-items:flex-start;background:var(--surface)}
+.highlight__icon{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--accent);letter-spacing:1px;line-height:1.6;flex-shrink:0}
+.highlight__text{font-size:14.5px;color:var(--ink);line-height:1.6}
+</style>
+</head>
+
+<body>
+<!-- Cursor -->
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<!-- Scroll progress -->
+<div class="scroll-progress" aria-hidden="true"><div class="scroll-progress__bar" id="scrollBar"></div></div>
+
+<!-- Menu button (top-left) -->
+<button class="menu-btn" id="menuBtn" aria-label="Abrir menú" data-hover>
+  <span class="bar"></span>
+  <span class="bar"></span>
+  <span class="bar"></span>
+</button>
+<span class="menu-label" aria-hidden="true">_ Menú</span>
+
+<!-- Utility bar (top-right) -->
+<div class="utility-bar">
+  <div class="clock" aria-label="Hora local">
+    <span class="pulse"></span>
+    <span id="liveClock">MX · --:--:--</span>
+  </div>
+  <button class="theme-toggle" id="themeToggle" data-hover aria-label="Cambiar tema">
+    <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+  </button>
+</div>
+
+<!-- Menu overlay -->
+<aside class="menu" id="menu" aria-label="Menú principal">
+  <div class="menu__inner">
+    <nav class="menu__nav">
+      <a class="menu__link" href="/" data-hover><span class="num">01</span>Inicio</a>
+      <a class="menu__link" href="/roadmap" data-hover><span class="num">02</span>Roadmap</a>
+      <a class="menu__link" href="/contacto" data-hover><span class="num">03</span>Contacto</a>
+      <a class="menu__link" href="/aviso-de-privacidad" data-hover><span class="num">04</span>Aviso de Privacidad</a>
+    </nav>
+    <div class="menu__aside">
+      <div>
+        <div class="menu__label">_ Contacto</div>
+        <div class="menu__contact" style="margin-top:8px"><a href="mailto:hello@thegaptproject.com" data-hover>hello@thegaptproject.com</a></div>
+      </div>
+      <div class="menu__grad"></div>
+    </div>
+  </div>
+</aside>
+
+
+<header class="hero">
+  <div class="container">
+    <div class="hero__frame">
+      <span class="corner corner--tl" aria-hidden="true"></span>
+      <span class="corner corner--tr" aria-hidden="true"></span>
+      <span class="corner corner--bl" aria-hidden="true"></span>
+      <span class="corner corner--br" aria-hidden="true"></span>
+      <div class="kicker"><span class="dot"></span>00 / Documento legal</div>
+      <h1 class="hero__title">
+        <span class="line"><span class="reveal" style="animation-delay:.2s">AVISO_DE_</span></span>
+        <span class="line"><span class="reveal" style="animation-delay:.35s">PRIVACIDAD<em>.</em></span></span>
+      </h1>
+      <div class="hero__meta" style="margin-top:28px">
+        <span><strong>THE GAPT PROJECT</strong></span>
+        <span class="sep"></span>
+        <span>Tratamiento de datos personales</span>
+        <span class="sep"></span>
+        <span>Últ. act. 30 MAY 2026</span>
+      </div>
+    </div>
+    <div class="grad-line animate-in" style="margin-top:44px"></div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <div class="toc-grid">
+
+      <aside class="toc" aria-label="Índice del documento">
+        <div class="toc__title">_ Índice</div>
+        <ul class="toc__list">
+          <li><a class="toc__link" href="#s1" data-hover><span class="toc__n">01</span>Identidad del responsable</a></li>
+          <li><a class="toc__link" href="#s2" data-hover><span class="toc__n">02</span>Datos personales que se recaban</a></li>
+          <li><a class="toc__link" href="#s3" data-hover><span class="toc__n">03</span>Datos personales sensibles</a></li>
+          <li><a class="toc__link" href="#s4" data-hover><span class="toc__n">04</span>Finalidades del tratamiento</a></li>
+          <li><a class="toc__link" href="#s5" data-hover><span class="toc__n">05</span>Transferencia de datos</a></li>
+          <li><a class="toc__link" href="#s6" data-hover><span class="toc__n">06</span>Derechos ARCO</a></li>
+          <li><a class="toc__link" href="#s7" data-hover><span class="toc__n">07</span>Revocación del consentimiento</a></li>
+          <li><a class="toc__link" href="#s8" data-hover><span class="toc__n">08</span>Limitación de uso o divulgación</a></li>
+          <li><a class="toc__link" href="#s9" data-hover><span class="toc__n">09</span>Uso de cookies</a></li>
+          <li><a class="toc__link" href="#s10" data-hover><span class="toc__n">10</span>Cambios al aviso</a></li>
+          <li><a class="toc__link" href="#s11" data-hover><span class="toc__n">11</span>Aceptación</a></li>
+        </ul>
+      </aside>
+
+      <div>
+        <section id="s1" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">01 //</span><h2 class="av-sec__title">Identidad y domicilio del responsable</h2></div>
+          <div class="av-body">
+            <p><strong>Gustavo Angel Pastrana Treviño</strong>, persona física, quien opera bajo la denominación comercial <strong>"THE GAPT PROJECT"</strong> (en adelante, "el Responsable"), con domicilio en <strong>Calle Reforma número 11, Temixco, Morelos, C.P. 62583, México</strong>, es el responsable del tratamiento de sus datos personales en términos del presente Aviso de Privacidad y conforme a lo dispuesto por la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (en adelante, "la Ley"), su Reglamento y demás disposiciones aplicables.</p>
+            <p>Para cualquier asunto relacionado con sus datos personales, puede contactarnos a través del correo electrónico <a href="mailto:legal@thegaptproject.com" data-hover>legal@thegaptproject.com</a>.</p>
+          </div>
+        </section>
+
+        <section id="s2" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">02 //</span><h2 class="av-sec__title">Datos personales que se recaban</h2></div>
+          <div class="av-body">
+            <p>Para las finalidades descritas en el presente Aviso, el Responsable podrá recabar las siguientes categorías de datos personales:</p>
+            <div class="callout"><span class="callout__tag">Identificación</span><span class="callout__body">Nombre completo, fecha de nacimiento, nacionalidad, firma autógrafa o electrónica e imágenes (cuando aplique).</span></div>
+            <div class="callout"><span class="callout__tag">Contacto</span><span class="callout__body">Domicilio, correo electrónico, teléfono fijo y/o móvil.</span></div>
+            <div class="callout"><span class="callout__tag">Laborales o profesionales</span><span class="callout__body">Empresa o entidad en la que labora, puesto, área y datos de contacto profesional.</span></div>
+            <div class="callout"><span class="callout__tag">Fiscales y patrimoniales</span><span class="callout__body">RFC, domicilio fiscal, datos bancarios y demás información necesaria para la facturación y cobro de servicios.</span></div>
+            <div class="callout"><span class="callout__tag">Relacionados con el proyecto</span><span class="callout__body">Ubicación del inmueble, características técnicas, requerimientos del cliente, planos, fotografías del sitio y referencias del proyecto.</span></div>
+          </div>
+        </section>
+
+        <section id="s3" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">03 //</span><h2 class="av-sec__title">Datos personales sensibles</h2></div>
+          <div class="av-body">
+            <div class="highlight"><span class="highlight__icon">[!]</span><span class="highlight__text">El Responsable <strong>no recaba datos personales sensibles</strong> (entendidos como aquellos que pueden revelar aspectos como origen racial o étnico, estado de salud, información genética, creencias religiosas, filosóficas y morales, afiliación sindical, opiniones políticas o preferencia sexual).</span></div>
+            <p>En caso de que para algún proyecto específico fuera necesario recabarlos, se solicitará su consentimiento expreso y por escrito.</p>
+          </div>
+        </section>
+
+        <section id="s4" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">04 //</span><h2 class="av-sec__title">Finalidades del tratamiento</h2></div>
+          <div class="av-body">
+            <h3>Finalidades primarias</h3>
+            <p>Sus datos personales serán utilizados para las siguientes finalidades, que dan origen y son necesarias para la relación jurídica entre usted y el Responsable:</p>
+            <ul>
+              <li>Atender solicitudes de información, cotizaciones y propuestas de servicio.</li>
+              <li>Prestar los servicios de diseño arquitectónico, diseño de interiores, consultoría y demás servicios relacionados.</li>
+              <li>Elaborar y formalizar contratos, convenios y demás documentos legales.</li>
+              <li>Realizar la facturación, cobranza y cumplimiento de obligaciones fiscales.</li>
+              <li>Mantener comunicación durante el desarrollo del proyecto y dar seguimiento post-entrega.</li>
+              <li>Resguardar los archivos del proyecto conforme a los plazos legales aplicables.</li>
+              <li>Cumplir con las obligaciones derivadas de la relación contractual y con la normativa aplicable.</li>
+            </ul>
+            <h3>Finalidades secundarias</h3>
+            <p>De manera adicional y siempre que usted no manifieste su oposición, sus datos podrán ser utilizados para las siguientes finalidades que <strong>no son necesarias</strong> para la relación jurídica:</p>
+            <ul>
+              <li>Envío de información sobre nuevos servicios, proyectos o contenidos del estudio.</li>
+              <li>Invitaciones a eventos, exposiciones o presentaciones.</li>
+              <li>Aplicación de encuestas de calidad y satisfacción.</li>
+              <li>Inclusión del proyecto en el portafolio del estudio, sitio web y redes sociales (en lo referente a imágenes o referencias del inmueble, sin divulgar datos personales del cliente).</li>
+            </ul>
+            <p>Si usted <strong>no desea</strong> que sus datos personales sean tratados para alguna o todas las finalidades secundarias, puede manifestarlo enviando un correo a <a href="mailto:legal@thegaptproject.com" data-hover>legal@thegaptproject.com</a> indicando "Oposición a finalidades secundarias" en el asunto. La negativa no será motivo para que se le nieguen los servicios solicitados.</p>
+          </div>
+        </section>
+
+        <section id="s5" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">05 //</span><h2 class="av-sec__title">Transferencia de datos personales</h2></div>
+          <div class="av-body">
+            <p>El Responsable podrá transferir sus datos personales, sin requerir su consentimiento, en los siguientes supuestos previstos por el artículo 37 de la Ley:</p>
+            <ul>
+              <li>A <strong>autoridades competentes</strong>, cuando así lo requieran en cumplimiento de una obligación legal o por mandato judicial.</li>
+              <li>A <strong>contadores, asesores fiscales y legales</strong> externos, para el cumplimiento de obligaciones contables, fiscales y legales del Responsable.</li>
+              <li>A <strong>proveedores, contratistas y colaboradores</strong> estrictamente necesarios para la ejecución del proyecto contratado (por ejemplo, ingenieros estructurales, instaladores, talleres de mobiliario), comprometiéndose éstos a guardar la confidencialidad correspondiente.</li>
+            </ul>
+            <p>Cualquier transferencia adicional a las anteriores requerirá de su consentimiento previo y expreso.</p>
+          </div>
+        </section>
+
+        <section id="s6" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">06 //</span><h2 class="av-sec__title">Medios para ejercer los derechos ARCO</h2></div>
+          <div class="av-body">
+            <p>Usted tiene derecho a conocer qué datos personales tenemos sobre usted, para qué los utilizamos y las condiciones del uso que les damos (<strong>Acceso</strong>). Asimismo, tiene derecho a solicitar la corrección de su información personal cuando esté desactualizada, sea inexacta o incompleta (<strong>Rectificación</strong>); a que la eliminemos de nuestros registros cuando considere que no está siendo utilizada conforme a los principios y deberes que establece la normativa (<strong>Cancelación</strong>); así como oponerse al uso de sus datos personales para fines específicos (<strong>Oposición</strong>).</p>
+            <p>Para ejercer cualquiera de estos derechos, deberá enviar una solicitud al correo <a href="mailto:legal@thegaptproject.com" data-hover>legal@thegaptproject.com</a>, la cual deberá contener:</p>
+            <ul>
+              <li>Nombre completo del titular y medio para recibir respuesta.</li>
+              <li>Documentos que acrediten su identidad o, en su caso, la representación legal.</li>
+              <li>Descripción clara y precisa de los datos personales sobre los que busca ejercer el derecho.</li>
+              <li>Cualquier otro elemento que facilite la localización de los datos personales.</li>
+            </ul>
+            <p>El Responsable dará respuesta en un plazo máximo de <strong>20 días hábiles</strong> a partir de la recepción de la solicitud, conforme a lo dispuesto por la Ley.</p>
+          </div>
+        </section>
+
+        <section id="s7" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">07 //</span><h2 class="av-sec__title">Revocación del consentimiento</h2></div>
+          <div class="av-body">
+            <p>Usted puede revocar en cualquier momento el consentimiento que nos ha otorgado para el tratamiento de sus datos personales. Sin embargo, es importante considerar que dicha revocación no podrá ser retroactiva y, en algunos casos, podrá tener como consecuencia la imposibilidad de continuar con la prestación del servicio o la conclusión de la relación contractual.</p>
+            <p>La solicitud de revocación se realizará por el mismo medio señalado para los derechos ARCO.</p>
+          </div>
+        </section>
+
+        <section id="s8" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">08 //</span><h2 class="av-sec__title">Limitación del uso o divulgación</h2></div>
+          <div class="av-body">
+            <p>Usted podrá limitar el uso o divulgación de sus datos personales enviando una solicitud al correo <a href="mailto:legal@thegaptproject.com" data-hover>legal@thegaptproject.com</a>. Asimismo, puede solicitar su inscripción en el Registro Público para Evitar Publicidad de la Procuraduría Federal del Consumidor (PROFECO), en términos de la Ley Federal de Protección al Consumidor.</p>
+          </div>
+        </section>
+
+        <section id="s9" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">09 //</span><h2 class="av-sec__title">Uso de cookies y tecnologías de rastreo</h2></div>
+          <div class="av-body">
+            <p>El sitio web <strong>thegaptproject.com</strong> puede utilizar cookies, web beacons y otras tecnologías de rastreo con el fin de mejorar la experiencia de navegación, recordar preferencias del usuario y obtener estadísticas anónimas de uso. Los datos que pueden obtenerse a través de estas tecnologías incluyen: tipo de navegador y sistema operativo, páginas visitadas, tiempo de navegación e idioma. Usted puede deshabilitar el uso de cookies desde la configuración de su navegador en cualquier momento.</p>
+          </div>
+        </section>
+
+        <section id="s10" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">10 //</span><h2 class="av-sec__title">Cambios al Aviso de Privacidad</h2></div>
+          <div class="av-body">
+            <p>El presente Aviso de Privacidad podrá sufrir modificaciones, cambios o actualizaciones derivadas de nuevos requerimientos legales, de nuestras propias necesidades por los servicios que ofrecemos, de nuestras prácticas de privacidad, o por otras causas. Cualquier modificación al presente Aviso de Privacidad será publicada en el sitio web <strong>thegaptproject.com</strong>, en la sección de Aviso de Privacidad, e indicaremos la fecha de la última actualización al inicio del documento.</p>
+          </div>
+        </section>
+
+        <section id="s11" class="av-sec">
+          <div class="av-sec__head"><span class="av-sec__n">11 //</span><h2 class="av-sec__title">Aceptación</h2></div>
+          <div class="av-body">
+            <p>El uso de nuestros servicios, el envío de información a través de nuestros canales de contacto y/o la navegación en nuestro sitio web implica que usted ha leído y aceptado los términos del presente Aviso de Privacidad.</p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Active TOC link tracking
+  const links = document.querySelectorAll('.toc__link');
+  const sections = document.querySelectorAll('.av-sec');
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const a = document.querySelector('.toc__link[href="#' + e.target.id + '"]');
+          if (a) a.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-100px 0px -65% 0px' });
+    sections.forEach(s => obs.observe(s));
+  }
+</script>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div>
+        <div class="footer__mark">
+          <span class="lockmark"><span class="sym" aria-hidden="true"><svg viewBox="0 0 100 100" shape-rendering="crispEdges"><rect class="base" width="100" height="100"/><rect class="seam" x="57" width="6" height="100"/></svg></span><span class="wmk">GAPT<i class="stop"></i></span></span>
+          <span class="sub">THE PROJECT · NO TWO ALIKE</span>
+        </div>
+        <div class="footer__tag">_ Architecture &amp; Design Studio · Est. 2026</div>
+      </div>
+      <div class="footer__col">
+        <h4>_ Navegación</h4>
+        <ul>
+          <li><a href="/" data-hover>Inicio</a></li>
+          <li><a href="/roadmap" data-hover>Roadmap</a></li>
+          <li><a href="/contacto" data-hover>Contacto</a></li>
+          <li><a href="/aviso-de-privacidad" data-hover>Aviso de Privacidad</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>_ Acceso privado</h4>
+        <ul>
+          <li><a href="https://thegaptproject.com/studyflow/login" data-hover>StudyFlow ↗</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>_ Contacto</h4>
+        <p><a href="mailto:hello@thegaptproject.com" data-hover>hello@thegaptproject.com</a></p>
+        <p>Cuernavaca, Morelos · MX</p>
+      </div>
+    </div>
+    <div class="footer__grad"></div>
+    <div class="footer__bottom">
+      <span>© 2026 THE GAPT PROJECT · All rights reserved</span>
+      <span>thegaptproject.com</span>
+    </div>
+  </div>
+</footer>
+<script src="/app.js" defer></script>
+</body>
+</html>
