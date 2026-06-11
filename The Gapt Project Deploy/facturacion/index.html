@@ -933,7 +933,7 @@ window.gaptGetDocForEmail = function() {
     try {
       // Pull current doc state from the page
       const docData = collectDocData();
-      const res = await fetch(WORKER_URL, {
+     const res = await fetch('https://gapt-mail.hvfgc6bp2r.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ to, ...docData }),
