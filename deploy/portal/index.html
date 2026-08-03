@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Portal de Clientes — GAPT</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0F0D0A">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --dark: #161310; --darker: #0F0D0A; --card: #1E1A16; --card-hi: #241F1A; --border: #2A2520;
+      --cream: #F4EFE4; --sand: #EAE2D2; --muted: #6E665B; --mid: #3A352E;
+      --orange: #FF5A1F; --green: #19A85B; --blue: #2563FF; --warn: #C9A227; --bad: #C0492F;
+      --grad: linear-gradient(90deg,#2563FF 0%,#6234E6 24%,#FF3D8B 50%,#FF5A1F 76%,#FFB300 100%);
+      --sh-card: 0 1px 2px rgba(0,0,0,.4), 0 8px 20px -12px rgba(0,0,0,.55);
+      --sh-card-hover: 0 2px 4px rgba(0,0,0,.45), 0 14px 28px -14px rgba(255,90,31,.22);
+      --sh-pop: 0 12px 32px -8px rgba(0,0,0,.6), 0 0 0 1px rgba(255,90,31,.06);
+    }
+    html, body { background: var(--dark); }
+    body {
+      color: var(--cream);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-variant-numeric: tabular-nums;
+      min-height: 100vh; min-height: 100dvh;
+      padding-bottom: calc(40px + env(safe-area-inset-bottom));
+      padding-top: calc(57px + env(safe-area-inset-top));
+      background-image: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,90,31,.05), transparent 60%);
+      background-attachment: fixed;
+    }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+    button { font-family: inherit; cursor: pointer; }
+    button:active { transform: scale(.96); transition: transform .1s ease; }
+
+    /* ── LOGO ── */
+    .logo-sym { width: 20px; height: 20px; flex: none; display: block; }
+    .logo-sym .sym-base { fill: #FF5A1F; }
+    .logo-sym .sym-seam { fill: #0F0D0A; }
+    .logo-text { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 16px; letter-spacing: -.04em; display: inline-flex; align-items: flex-end; color: #F4EFE4; line-height: 1; }
+    .logo-stop { width: .17em; height: .17em; background: #FF5A1F; display: inline-block; margin-left: .07em; margin-bottom: .06em; }
+    .product-label { font-size: 16px; font-weight: 900; letter-spacing: -.05em; color: #6E665B; margin-left: 4px; }
+
+    /* ── INTRO (blur-text logo reveal) ── */
+    #state-intro {
+      position: fixed; inset: 0; z-index: 500; background: var(--darker);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    }
+    #state-intro.gone { display: none; }
+    #intro-logo { display: flex; align-items: center; gap: 10px; }
+    #intro-logo .logo-sym { width: 30px; height: 30px; flex: none; display: block; }
+    #intro-letters { display: flex; font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 28px; letter-spacing: -.04em; color: var(--cream); line-height: 1; }
+    .blur-letter {
+      display: inline-block; opacity: 0; filter: blur(10px); transform: translateY(-16px);
+      animation: blurInLetter .5s cubic-bezier(.25,.46,.45,.94) forwards;
+    }
+    @keyframes blurInLetter {
+      60% { opacity: .6; filter: blur(3px); transform: translateY(2px); }
+      100% { opacity: 1; filter: blur(0); transform: translateY(0); }
+    }
+    #intro-sub { font-family: monospace; font-size: 9px; letter-spacing: .22em; color: var(--muted); text-transform: uppercase; opacity: 0; animation: blurInLetter .45s ease forwards; animation-delay: .55s; }
+
+    /* ── AUTH GATE (split screen) ── */
+    #auth-gate {
+      position: fixed; inset: 0; z-index: 200;
+      display: grid; grid-template-columns: 1.1fr 1fr;
+    }
+    .ag-left {
+      background: var(--darker);
+      background-image:
+        radial-gradient(ellipse 700px 500px at 15% 90%, rgba(255,90,31,.08), transparent 60%),
+        radial-gradient(ellipse 500px 400px at 90% 10%, rgba(37,99,255,.05), transparent 60%);
+      padding: 40px; display: flex; flex-direction: column;
+    }
+    .ag-left .g-logo { display: flex; align-items: center; gap: 9px; }
+    .ag-left .logo-sym { width: 24px; height: 24px; }
+    .ag-left .logo-text { font-size: 18px; }
+    .ag-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 460px; }
+    .ag-hero h1 {
+      font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900;
+      font-size: 44px; line-height: 1.08; letter-spacing: -.02em; color: var(--cream); margin-bottom: 18px;
+    }
+    .ag-hero h1 .accent { color: var(--orange); }
+    .ag-hero .sub { font-size: 14px; line-height: 1.6; color: var(--muted); margin-bottom: 36px; max-width: 380px; }
+    .ag-feature { display: flex; align-items: baseline; gap: 14px; padding: 14px 0; border-top: 1px solid var(--border); }
+    .ag-feature:last-child { border-bottom: 1px solid var(--border); }
+    .ag-feature .num { font-family: monospace; font-size: 10px; color: var(--orange); letter-spacing: .1em; flex-shrink: 0; }
+    .ag-feature .txt { font-size: 13px; color: var(--sand); line-height: 1.5; }
+    .ag-left-foot { font-family: monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+    .ag-right {
+      background: var(--dark);
+      display: flex; align-items: center; justify-content: center; padding: 40px;
+    }
+    .ag-card { width: 100%; max-width: 340px; }
+    .ag-card .sub { font-family: monospace; font-size: 9px; letter-spacing: .22em; color: var(--muted); text-transform: uppercase; margin-bottom: 18px; }
+    .ag-card h2 { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 26px; letter-spacing: -.02em; color: var(--cream); margin-bottom: 8px; }
+    .ag-card .desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 28px; }
+    .ag-card label { display: block; font-family: monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    #auth-gate input {
+      background: var(--card); border: 1px solid var(--border); color: var(--cream);
+      font-family: monospace; font-size: 13px;
+      width: 100%; padding: 14px 16px; outline: none; margin-bottom: 8px;
+    }
+    #auth-gate input:focus { border-color: var(--orange); }
+    #auth-err { font-family: monospace; font-size: 11px; color: var(--orange); min-height: 16px; margin-bottom: 8px; }
+    #auth-gate button.gsend {
+      width: 100%; background: var(--orange); color: #fff; border: none; cursor: pointer;
+      font-family: monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+      padding: 15px; margin-top: 8px; box-shadow: 0 10px 24px -10px rgba(255,90,31,.5);
+      transition: filter .15s;
+    }
+    #auth-gate button.gsend:hover { filter: brightness(1.08); }
+    .ag-card-foot { font-family: monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 24px; text-align: center; }
+    #auth-sent { display: none; }
+    #auth-sent .mono { font-size: 12px; color: var(--muted); line-height: 1.8; }
+    #auth-sent .email-echo { color: var(--orange); }
+
+    @media (max-width: 860px) {
+      #auth-gate { grid-template-columns: 1fr; grid-template-rows: auto 1fr; overflow-y: auto; }
+      .ag-left { padding: 28px 24px 8px; }
+      .ag-hero { max-width: none; }
+      .ag-hero h1 { font-size: 30px; margin-bottom: 10px; }
+      .ag-hero .sub { margin-bottom: 20px; }
+      .ag-feature { display: none; }
+      .ag-left-foot { display: none; }
+      .ag-right { padding: 24px; }
+    }
+
+    /* ── TOPBAR ── */
+    .page-header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+    .topbar {
+      background: rgba(15,13,10,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid #1A1612;
+      padding: env(safe-area-inset-top) 20px 0;
+      display: flex; align-items: center; gap: 10px;
+      min-height: calc(54px + env(safe-area-inset-top));
+    }
+    .gapt-logo { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .topbar-icon-btn { background: none; border: none; color: #6E665B; cursor: pointer; font-size: 12px; font-family: monospace; letter-spacing: .1em; text-transform: uppercase; padding: 4px 6px; line-height: 1; }
+    .topbar-icon-btn:hover { color: #F4EFE4; }
+    .avatar-btn {
+      width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+      background: var(--card-hi); color: var(--orange); font-family: monospace; font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color .15s;
+    }
+    .avatar-btn:hover { border-color: var(--orange); }
+    .grad-bar { height: 3px; background: var(--grad); }
+
+    /* ── CONTAINER ── */
+    .container { max-width: 640px; margin: 0 auto; padding: 20px 16px; }
+    #app { display: none; }
+
+    /* ── GREETING ── */
+    .greeting-block { margin-bottom: 20px; }
+    .greeting-hi { font-family: monospace; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .greeting-name { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 24px; letter-spacing: -.02em; color: var(--cream); }
+
+    /* ── STATS ── */
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    .stat-card {
+      background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--border);
+      box-shadow: var(--sh-card); border-radius: 3px; padding: 16px;
+    }
+    .stat-num { font-size: 26px; font-weight: 900; color: var(--cream); line-height: 1; margin-bottom: 5px; letter-spacing: -.01em; }
+    .stat-num.orange { color: var(--orange); text-shadow: 0 0 24px rgba(255,90,31,.35); }
+    .stat-lbl { font-family: monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+    /* ── BLUEPRINT MODE (easter egg) ── */
+    #blueprint-overlay {
+      position: fixed; inset: 0; z-index: 9000; pointer-events: none; overflow: hidden;
+      background:
+        linear-gradient(rgba(80,190,255,.35) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(90deg, rgba(80,190,255,.35) 1px, transparent 1px) 0 0 / 28px 28px,
+        #0A1930;
+      opacity: 0; transition: opacity .5s ease;
+    }
+    #blueprint-overlay.show { opacity: 1; }
+    #blueprint-overlay .bp-label {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      font-family: monospace; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(150,210,255,.6);
+    }
+    #blueprint-overlay .bp-svg-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 60px 40px; }
+    #blueprint-overlay svg { width: 100%; max-width: 620px; height: auto; overflow: visible; }
+    #blueprint-overlay .bp-draw {
+      fill: none; stroke: #7FD3FF; stroke-width: 1.6; stroke-linecap: square;
+      stroke-dasharray: 1800; stroke-dashoffset: 1800; animation: bpDraw 1.5s cubic-bezier(.3,.6,.2,1) forwards;
+      filter: drop-shadow(0 0 3px rgba(127,211,255,.5));
+    }
+    @keyframes bpDraw { to { stroke-dashoffset: 0; } }
+    #blueprint-overlay .bp-txt { fill: rgba(150,210,255,.8); font-family: monospace; opacity: 0; animation: bpFadeIn .5s ease forwards; }
+    @keyframes bpFadeIn { to { opacity: 1; } }
+    #blueprint-overlay .bp-scan {
+      position: absolute; left: 0; right: 0; height: 140px; top: -140px;
+      background: linear-gradient(180deg, transparent, rgba(120,200,255,.22), transparent);
+      animation: bpScanMove 2.4s ease-in-out;
+    }
+    @keyframes bpScanMove { from { top: -140px; } to { top: 100%; } }
+
+    /* ── KONAMI CRAWL (easter egg) ── */
+    #sw-overlay { position: fixed; inset: 0; z-index: 9500; background: #000; overflow: hidden; display: none; cursor: pointer; }
+    #sw-overlay.show { display: block; }
+    #sw-overlay::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, #000 0%, transparent 20%, transparent 74%, #000 100%);
+    }
+    .sw-skip {
+      position: absolute; top: 20px; right: 20px; z-index: 2;
+      background: none; border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.6);
+      font-family: monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+      padding: 8px 14px; cursor: pointer;
+    }
+    .sw-skip:hover { color: #fff; border-color: #fff; }
+    .sw-mode-label {
+      position: absolute; top: 22px; left: 22px; z-index: 2;
+      font-family: monospace; font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: rgba(255,255,255,.35);
+    }
+    .sw-stars {
+      position: absolute; inset: -10%;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, #fff, transparent), radial-gradient(1px 1px at 80% 10%, #fff, transparent),
+        radial-gradient(1px 1px at 30% 70%, #fff, transparent), radial-gradient(1px 1px at 60% 40%, #fff, transparent),
+        radial-gradient(1px 1px at 90% 80%, #fff, transparent), radial-gradient(1px 1px at 45% 90%, #fff, transparent),
+        radial-gradient(1px 1px at 15% 55%, #fff, transparent), radial-gradient(1px 1px at 70% 60%, #fff, transparent),
+        radial-gradient(1px 1px at 25% 35%, #fff, transparent), radial-gradient(1px 1px at 55% 15%, #fff, transparent);
+      background-repeat: repeat; background-size: 220px 220px; opacity: .55;
+    }
+    .sw-perspective { position: absolute; inset: 0; perspective: 350px; overflow: hidden; }
+    .sw-crawl {
+      position: absolute; left: 50%; width: 74%; max-width: 560px;
+      transform: translateX(-50%) rotateX(38deg); transform-origin: 50% 100%;
+      text-align: center; color: #FFB27A;
+      font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 800;
+      top: 100%;
+    }
+    .sw-crawl h2 { font-size: 24px; letter-spacing: -.01em; margin: 46px 0 8px; color: #FF5A1F; }
+    .sw-crawl h2:first-child { margin-top: 0; }
+    .sw-crawl .sw-kicker { font-family: monospace; font-size: 12px; letter-spacing: .3em; margin-bottom: 40px; color: #FFB27A; }
+    .sw-crawl p { font-size: 18px; line-height: 1.85; margin-bottom: 28px; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: monospace; font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--orange); display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── FILTER TABS ── */
+    .filter-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .ftab {
+      font-family: monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+      padding: 5px 10px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: none;
+    }
+    .ftab.active { border-color: var(--orange); color: var(--orange); }
+
+    /* ── DOC CARDS ── */
+    .doc-card { background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--border); box-shadow: var(--sh-card); border-radius: 3px; margin-bottom: 12px; cursor: pointer; transition: box-shadow .2s, border-color .2s, transform .2s; }
+    .doc-card:hover { box-shadow: var(--sh-card-hover); border-color: var(--mid); transform: translateY(-1px); }
+    .doc-card-head { padding: 14px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .doc-folio { font-family: monospace; font-size: 12px; font-weight: 700; color: var(--cream); }
+    .doc-tipo { font-family: monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+    .doc-meta { font-family: monospace; font-size: 10px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+    .doc-total { font-size: 16px; font-weight: 700; color: var(--cream); flex-shrink: 0; }
+    .status-badge {
+      font-family: monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+      padding: 3px 8px; border: 1px solid; flex-shrink: 0; display: inline-block;
+    }
+    .status-badge.pendiente { border-color: var(--warn); color: var(--warn); }
+    .status-badge.pagada { border-color: var(--green); color: var(--green); }
+    .status-badge.vencida { border-color: var(--bad); color: var(--bad); }
+    .status-badge.cancelada { border-color: var(--muted); color: var(--muted); }
+
+    /* ── EMPTY STATE ── */
+    .empty { padding: 28px; text-align: center; font-family: monospace; font-size: 11px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; border: 1px dashed var(--border); }
+
+    /* ── GENERIC MODAL ── */
+    .gmodal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .gmodal-bg.show { display: flex; animation: gfade .18s ease; }
+    @keyframes gfade { from { opacity: 0 } to { opacity: 1 } }
+    .gmodal-bg.show .gmodal { animation: gpop .22s cubic-bezier(.2,.9,.3,1.2); }
+    @keyframes gpop { from { opacity: 0; transform: translateY(8px) scale(.98) } to { opacity: 1; transform: translateY(0) scale(1) } }
+    .gmodal { background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--border); box-shadow: var(--sh-pop); border-radius: 4px; max-width: 460px; width: 100%; padding: 24px; max-height: 90vh; overflow-y: auto; }
+    .gmodal h3 { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 800; font-size: 22px; margin-bottom: 6px; color: var(--cream); }
+    .gmodal .sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .gfield { margin-bottom: 12px; }
+    .gfield label { display: block; font-family: monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .gfield input, .gfield select, .gfield textarea {
+      width: 100%; background: var(--dark); border: 1px solid var(--border); color: var(--cream);
+      font-family: inherit; font-size: 13px; padding: 10px 12px; outline: none; resize: vertical;
+    }
+    .gfield input:focus, .gfield select:focus, .gfield textarea:focus { border-color: var(--orange); }
+    .gfield .hint { font-family: monospace; font-size: 9px; color: var(--muted); margin-top: 4px; }
+    .gfield input[type="file"] { padding: 8px; font-size: 11px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .gmodal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+    .gbtn { font-family: monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 10px 18px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: border-color .2s, color .2s, background .2s; }
+    .gbtn:hover { border-color: var(--cream); color: var(--cream); }
+    .gbtn.solid { background: var(--orange); border-color: var(--orange); color: #fff; box-shadow: 0 10px 24px -10px rgba(255,90,31,.5); }
+    .gbtn.solid:hover { filter: brightness(1.08); box-shadow: 0 12px 28px -8px rgba(255,90,31,.55); }
+    .gbtn.solid:disabled { opacity: .5; cursor: default; box-shadow: none; }
+    .gstatus { font-family: monospace; font-size: 11px; margin-top: 10px; min-height: 16px; color: var(--muted); }
+    .gstatus.ok { color: var(--green); }
+    .gstatus.err { color: var(--bad); }
+    .gmodal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; flex-shrink: 0; }
+    .modal-close:hover { color: var(--cream); }
+
+
+    /* ── DOC DETAIL ── */
+    .dd-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .dd-row span:first-child { color: var(--muted); }
+    .dd-row.total { font-weight: 700; font-size: 15px; border-bottom: none; padding-top: 12px; }
+    .dd-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+    .dd-actions .gbtn { width: 100%; padding: 13px; text-align: center; }
+
+    /* ── TOAST ── */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--card-hi); border: 1px solid var(--border); box-shadow: var(--sh-pop); padding: 12px 20px; font-size: 12px; color: var(--cream); z-index: 500; opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ── INTRO ── -->
+<div id="state-intro">
+  <div id="intro-logo">
+    <svg class="logo-sym" viewBox="0 0 100 100" shape-rendering="crispEdges">
+      <rect class="sym-base" width="100" height="100"/>
+      <rect class="sym-seam" x="57" width="6" height="100"/>
+    </svg>
+    <div id="intro-letters"></div>
+  </div>
+  <div id="intro-sub">Portal de clientes</div>
+</div>
+
+<!-- ── AUTH GATE (split screen) ── -->
+<div id="auth-gate">
+  <div class="ag-left">
+    <div class="g-logo">
+      <svg class="logo-sym" viewBox="0 0 100 100" shape-rendering="crispEdges">
+        <rect class="sym-base" width="100" height="100"/>
+        <rect class="sym-seam" x="57" width="6" height="100"/>
+      </svg>
+      <span class="logo-text">GAPT<i class="logo-stop"></i></span>
+    </div>
+
+    <div class="ag-hero">
+      <h1>Ve. Paga.<br>Factura.<br><span class="accent">Así de simple.</span></h1>
+      <div class="sub">Consulta tus facturas y cotizaciones, paga en línea o sube tu comprobante, y pide tu CFDI sin llenar formularios cada vez.</div>
+
+      <div class="ag-feature">
+        <span class="num mono">_ 01</span>
+        <span class="txt">Ve tus facturas y cotizaciones al instante</span>
+      </div>
+      <div class="ag-feature">
+        <span class="num mono">_ 02</span>
+        <span class="txt">Paga en línea o sube tu comprobante SPEI</span>
+      </div>
+      <div class="ag-feature">
+        <span class="num mono">_ 03</span>
+        <span class="txt">Solicita tu CFDI con un clic</span>
+      </div>
+    </div>
+
+    <div class="ag-left-foot">© 2026 GAPT Project · thegaptproject.com</div>
+  </div>
+
+  <div class="ag-right">
+    <div class="ag-card">
+      <div class="sub">Portal de clientes</div>
+
+      <div id="auth-form">
+        <h2>Bienvenido</h2>
+        <div class="desc">Ingresa con tu correo — sin contraseña que recordar.</div>
+        <label>Correo electrónico</label>
+        <input type="email" id="auth-email" placeholder="tu@correo.com" autocomplete="email" inputmode="email">
+        <div id="auth-err" class="mono"></div>
+        <button class="gsend" onclick="sendMagicLink()">Enviarme link de acceso →</button>
+      </div>
+
+      <div id="auth-sent">
+        <h2>Revisa tu correo</h2>
+        <div class="mono">Te mandamos un link a<br><span class="email-echo" id="auth-sent-email"></span><br><br>Ábrelo desde este mismo dispositivo para entrar.</div>
+      </div>
+
+      <div class="ag-card-foot">Acceso restringido · Solo clientes autorizados</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+  <div class="page-header">
+    <div class="topbar">
+      <div class="gapt-logo" id="topbar-logo" onclick="tapLogo()">
+        <svg class="logo-sym" viewBox="0 0 100 100" shape-rendering="crispEdges">
+          <rect class="sym-base" width="100" height="100"/>
+          <rect class="sym-seam" x="57" width="6" height="100"/>
+        </svg>
+        <span class="logo-text">GAPT<i class="logo-stop"></i></span>
+      </div>
+      <span class="product-label">PORTAL</span>
+      <div class="topbar-right">
+        <button class="avatar-btn" id="avatar-btn" onclick="openMiPerfil()">--</button>
+        <button class="topbar-icon-btn" onclick="signOut()">Salir</button>
+      </div>
+    </div>
+    <div class="grad-bar"></div>
+  </div>
+
+  <div class="container">
+    <div class="greeting-block">
+      <div class="greeting-hi" id="greeting-hi">Hola</div>
+      <div class="greeting-name" id="greeting-name">—</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num orange" id="stat-pendientes">0</div>
+        <div class="stat-lbl">Documentos pendientes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total-pendiente">$0</div>
+        <div class="stat-lbl">Por pagar</div>
+      </div>
+    </div>
+
+    <div class="section-label">_ 01 / Mis documentos</div>
+    <div class="filter-row" id="doc-filters">
+      <button class="ftab active" data-f="todos">Todos</button>
+      <button class="ftab" data-f="factura">Facturas</button>
+      <button class="ftab" data-f="cotizacion">Cotizaciones</button>
+    </div>
+    <div id="doc-list"></div>
+  </div>
+</div>
+
+<!-- ── PERFIL FISCAL (primera vez / edición) ── -->
+<div class="gmodal-bg" id="modal-perfil">
+  <div class="gmodal">
+    <div class="gmodal-head">
+      <div>
+        <h3 id="pf-modal-title">Completa tu perfil fiscal</h3>
+        <div class="sub" id="pf-modal-sub">Lo llenas una sola vez — después pedir tu CFDI es un clic.</div>
+      </div>
+      <button class="modal-close" id="pf-close-btn" onclick="closePerfilModal()" style="display:none">✕</button>
+    </div>
+    <div class="gfield"><label>Razón social</label><input id="pf-nombre" placeholder="Nombre o razón social"></div>
+    <div class="grid2">
+      <div class="gfield"><label>RFC</label><input id="pf-rfc" class="mono" maxlength="13" style="text-transform:uppercase"></div>
+      <div class="gfield"><label>Código postal</label><input id="pf-cp" class="mono" maxlength="5" inputmode="numeric"></div>
+    </div>
+    <div class="gfield"><label>Régimen fiscal</label><input id="pf-regimen" placeholder="Ej. 601 - General de Ley Personas Morales"></div>
+    <div class="gfield"><label>Uso de CFDI (default)</label><input id="pf-uso" placeholder="Ej. G03 - Gastos en general"></div>
+    <div class="gfield"><label>Constancia de Situación Fiscal (PDF)</label><input type="file" id="pf-csf" accept="application/pdf"><div class="hint" id="pf-csf-hint"></div></div>
+    <div id="pf-status" class="gstatus"></div>
+    <div class="gmodal-actions">
+      <button class="gbtn solid" onclick="guardarPerfil()" id="pf-save-btn">Guardar perfil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DETALLE DE DOCUMENTO ── -->
+<div class="gmodal-bg" id="modal-doc">
+  <div class="gmodal" id="modal-doc-body"></div>
+</div>
+
+<div id="blueprint-overlay">
+  <div class="bp-scan"></div>
+  <div class="bp-svg-wrap" id="bp-svg-wrap"></div>
+  <div class="bp-label">Modo plano · GAPT Studio</div>
+</div>
+
+<div id="sw-overlay" onclick="closeCrawl()">
+  <div class="sw-mode-label">Modo Star Wars</div>
+  <button class="sw-skip" onclick="event.stopPropagation(); closeCrawl()">✕ Saltar</button>
+  <div class="sw-stars"></div>
+  <div class="sw-perspective">
+    <div class="sw-crawl" id="sw-crawl-text"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
