@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Generar claves VAPID — GAPT</title>
+  <style>
+    body { font-family: monospace; background: #0F0D0A; color: #F4EFE4; padding: 40px 24px; max-width: 700px; margin: 0 auto; }
+    h2 { font-size: 16px; letter-spacing: .1em; text-transform: uppercase; color: #FF5A1F; margin-bottom: 8px; }
+    p { font-size: 12px; color: #6E665B; line-height: 1.7; margin-bottom: 20px; }
+    button { background: #FF5A1F; color: #fff; border: none; padding: 12px 28px; font-family: monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+    button:hover { background: #E04C17; }
+    .key-block { background: #1E1A16; border: 1px solid #2A2520; padding: 16px; margin: 16px 0; }
+    .key-label { font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #6E665B; margin-bottom: 8px; }
+    .key-value { font-size: 11px; color: #F4EFE4; word-break: break-all; line-height: 1.6; }
+    .copy-btn { background: none; border: 1px solid #2A2520; color: #6E665B; padding: 4px 10px; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; margin-top: 8px; }
+    .copy-btn:hover { border-color: #FF5A1F; color: #FF5A1F; }
+    .step { background: #161310; border-left: 3px solid #FF5A1F; padding: 12px 16px; margin: 10px 0; font-size: 11px; line-height: 1.8; }
+    .step strong { color: #FF5A1F; }
+    code { background: #0F0D0A; padding: 2px 6px; font-size: 10px; color: #19A85B; }
+    #output { display: none; }
+    .done { color: #19A85B; }
+  </style>
+</head>
+<body>
+
+<h2>_ Generador de claves VAPID</h2>
+<p>Estas claves son necesarias para las notificaciones push. Genéralas una sola vez y guárdalas como secretos en Cloudflare.</p>
+
+<button onclick="generate()">Generar claves VAPID →</button>
+
+<div id="output">
+  <div class="key-block">
+    <div class="key-label">VAPID_PUBLIC_KEY (para Cloudflare Workers + GAPT One)</div>
+    <div class="key-value" id="pub-key"></div>
+    <button class="copy-btn" onclick="copyKey('pub-key', this)">Copiar</button>
+  </div>
+
+  <div class="key-block">
+    <div class="key-label">VAPID_PRIVATE_KEY (solo para Cloudflare Workers — no compartir)</div>
+    <div class="key-value" id="priv-key"></div>
+    <button class="copy-btn" onclick="copyKey('priv-key', this)">Copiar</button>
+  </div>
+
+  <p style="color:#C9A227;margin-top:20px">⚠ Guarda estas claves ahora. La clave privada no se puede recuperar una vez que cierres esta página.</p>
+
+  <div class="step">
+    <strong>Paso 1 — Cloudflare Workers:</strong><br>
+    Ve a tu Worker en <code>gapt-mail</code> → Settings → Variables → Add variable<br>
+    Agrega: <code>VAPID_PUBLIC_KEY</code> y <code>VAPID_PRIVATE_KEY</code> como secretos.
+  </div>
+
+  <div class="step">
+    <strong>Paso 2 — GAPT One (deploy/one/index.html):</strong><br>
+    Reemplaza <code>REPLACE_WITH_YOUR_VAPID_PUBLIC_KEY</code> con la clave pública de arriba.<br>
+    La constante está en la línea: <code>const VAPID_PUBLIC_KEY = '...';</code>
+  </div>
+
+  <div class="step">
+    <strong>Paso 3 — Deploy:</strong><br>
+    Haz deploy del worker actualizado y sube el index.html de GAPT One.<br>
+    Luego abre GAPT One en tu iPhone, inicia sesión y acepta las notificaciones.
+  </div>
+</div>
+
+<script>
+async function generate() {
+  // Use ECDSA P-256 — same curve as VAPID, JWK export gives d directly
+  const keyPair = await crypto.subtle.generateKey(
+    { name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']
+  );
+
+  // Public key: raw uncompressed 65-byte point → base64url
+  const pubRaw = await crypto.subtle.exportKey('raw', keyPair.publicKey);
+  const pubB64 = b64url(new Uint8Array(pubRaw));
+
+  // Private key: JWK export gives .d = raw 32-byte scalar in base64url (reliable in all browsers)
+  const jwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
+  const privB64 = jwk.d;
+
+  document.getElementById('pub-key').textContent = pubB64;
+  document.getElementById('priv-key').textContent = privB64;
+  document.getElementById('output').style.display = 'block';
+}
+
+function b64url(u8) {
+  return btoa(String.fromCharCode(...u8)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function copyKey(elId, btn) {
+  const text = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+  });
+}
+</script>
+</body>
+</html>

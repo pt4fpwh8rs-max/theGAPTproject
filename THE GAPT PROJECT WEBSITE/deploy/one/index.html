@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>GAPT One</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/one/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/one/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GAPT One">
+  <meta name="theme-color" content="#0F0D0A">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --dark: #161310; --darker: #0F0D0A; --card: #1E1A16; --card-hi: #241F1A; --border: #2A2520;
+      --cream: #F4EFE4; --sand: #EAE2D2; --muted: #6E665B; --mid: #3A352E;
+      --orange: #FF5A1F; --green: #19A85B; --blue: #2563FF; --warn: #C9A227; --bad: #C0492F;
+      --grad: linear-gradient(90deg,#2563FF 0%,#6234E6 24%,#FF3D8B 50%,#FF5A1F 76%,#FFB300 100%);
+      --sh-card: 0 1px 2px rgba(0,0,0,.4), 0 8px 20px -12px rgba(0,0,0,.55);
+      --sh-card-hover: 0 2px 4px rgba(0,0,0,.45), 0 14px 28px -14px rgba(255,90,31,.22);
+      --sh-pop: 0 12px 32px -8px rgba(0,0,0,.6), 0 0 0 1px rgba(255,90,31,.06);
+    }
+    [data-theme="light"] {
+      --dark: #F4EFE4; --darker: #FBF8F1; --card: #FFFFFF; --card-hi: #FFFFFF; --border: #DCD2BF;
+      --cream: #161310; --sand: #3A352E; --muted: #6E665B; --mid: #8C8276;
+      --sh-card: 0 1px 2px rgba(22,19,16,.06), 0 8px 20px -14px rgba(22,19,16,.18);
+      --sh-card-hover: 0 2px 4px rgba(22,19,16,.08), 0 14px 28px -16px rgba(255,90,31,.16);
+      --sh-pop: 0 12px 32px -10px rgba(22,19,16,.24), 0 0 0 1px rgba(255,90,31,.08);
+    }
+    html, body { background: var(--dark); }
+    body {
+      color: var(--cream);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-variant-numeric: tabular-nums;
+      min-height: 100vh; min-height: 100dvh;
+      padding-bottom: calc(72px + env(safe-area-inset-bottom));
+      padding-top: calc(57px + env(safe-area-inset-top));
+      background-image: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,90,31,.05), transparent 60%);
+      background-attachment: fixed;
+      transition: background-color .15s, color .15s;
+    }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+    button { font-family: inherit; cursor: pointer; }
+    button, .nav-item, .quick-btn, .gbtn, .cfdi-btn, .rem-action-btn, .ent-btn-sm, .ftab { -webkit-tap-highlight-color: transparent; }
+    button:active, .nav-item:active, .quick-btn:active, .gbtn:active, .cfdi-btn:active, .rem-action-btn:active, .ent-btn-sm:active {
+      transform: scale(.96); transition: transform .1s ease;
+    }
+    .page-header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+    .gcard { background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--border); box-shadow: var(--sh-card); border-radius: 3px; }
+
+    /* ── PIN GATE ── */
+    #pin-gate {
+      position: fixed; inset: 0; background: var(--darker);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 200; gap: 20px;
+    }
+    #pin-gate .g-logo { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+    #pin-gate .logo-sym { width: 28px; height: 28px; flex: none; display: block; }
+    #pin-gate .logo-sym .sym-base { fill: #FF5A1F; }
+    #pin-gate .logo-sym .sym-seam { fill: #0F0D0A; }
+    #pin-gate .logo-text { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 22px; letter-spacing: -.04em; display: inline-flex; align-items: flex-end; color: #F4EFE4; line-height: 1; }
+    #pin-gate .logo-stop { width: .17em; height: .17em; background: #FF5A1F; display: inline-block; margin-left: .07em; margin-bottom: .06em; }
+    #pin-gate .g-one { font-size: 22px; font-weight: 900; letter-spacing: -.05em; color: var(--muted); margin-left: 5px; font-family: 'Archivo', sans-serif; font-stretch: 125%; }
+    #pin-gate .sub { font-family: monospace; font-size: 9px; letter-spacing: .22em; color: var(--muted); text-transform: uppercase; }
+    #pin-gate .gline { width: 120px; height: 3px; background: var(--grad); margin: 4px 0 8px; }
+    #pin-gate input {
+      background: var(--card); border: 1px solid var(--border); color: var(--cream);
+      font-family: monospace; font-size: 28px; font-weight: 700; letter-spacing: .4em;
+      text-align: center; width: 180px; padding: 14px 8px 14px 20px; outline: none;
+    }
+    #pin-gate input:focus { border-color: var(--orange); }
+    #pin-err { font-family: monospace; font-size: 11px; color: var(--orange); min-height: 16px; }
+    #pin-gate button {
+      background: var(--orange); color: #fff; border: none; cursor: pointer;
+      font-family: monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+      padding: 13px 32px;
+    }
+
+    /* ── TOPBAR (always dark, fixed) ── */
+    .topbar {
+      background: rgba(15,13,10,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid #1A1612;
+      padding: env(safe-area-inset-top) 20px 0;
+      display: flex; align-items: center; gap: 10px;
+      min-height: calc(54px + env(safe-area-inset-top));
+    }
+    .gapt-logo { display: flex; align-items: center; gap: 8px; }
+    .logo-sym { width: 20px; height: 20px; flex: none; display: block; }
+    .logo-sym .sym-base { fill: #FF5A1F; }
+    .logo-sym .sym-seam { fill: #0F0D0A; }
+    .logo-text { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 16px; letter-spacing: -.04em; display: inline-flex; align-items: flex-end; color: #F4EFE4; line-height: 1; }
+    .logo-stop { width: .17em; height: .17em; background: #FF5A1F; display: inline-block; margin-left: .07em; margin-bottom: .06em; }
+    .product-label { font-size: 16px; font-weight: 900; letter-spacing: -.05em; color: #6E665B; margin-left: 4px; }
+    .topbar-time { margin-left: auto; font-family: monospace; font-size: 10px; color: #6E665B; }
+    .topbar-icon-btn { background: none; border: none; color: #6E665B; cursor: pointer; font-size: 14px; padding: 4px 6px; line-height: 1; }
+    .topbar-icon-btn:hover { color: #F4EFE4; }
+    .grad-bar { height: 3px; background: var(--grad); }
+
+    /* ── CONTAINER ── */
+    .container { max-width: 640px; margin: 0 auto; padding: 20px 16px; }
+
+    /* ── TAB PANELS ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── STATS ── */
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .stat-card {
+      background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--border);
+      box-shadow: var(--sh-card); border-radius: 3px; padding: 16px;
+      cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .stat-card:hover { border-color: var(--orange); box-shadow: var(--sh-card-hover); transform: translateY(-1px); }
+    .stat-num { font-size: 30px; font-weight: 900; color: var(--cream); line-height: 1; margin-bottom: 5px; letter-spacing: -.01em; }
+    .stat-num.orange { color: var(--orange); text-shadow: 0 0 24px rgba(255,90,31,.35); }
+    .stat-num.green { color: var(--green); text-shadow: 0 0 24px rgba(25,168,91,.3); }
+    .stat-lbl { font-family: monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+    /* ── QUICK ACTIONS ── */
+    .quick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+    .quick-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 13px 8px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--card-hi), var(--card)); box-shadow: var(--sh-card); border-radius: 3px;
+      color: var(--cream); text-decoration: none;
+      font-family: monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      transition: border-color .2s, color .2s, box-shadow .2s, transform .2s;
+    }
+    .quick-btn:hover { border-color: var(--orange); color: var(--orange); box-shadow: var(--sh-card-hover); transform: translateY(-1px); }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: monospace; font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--orange); display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── FILTER TABS ── */
+    .filter-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .ftab {
+      font-family: monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+      padding: 5px 10px; border: 1px solid var(--border); color: var(--muted); cursor: pointer;
+    }
+    .ftab.active { border-color: var(--orange); color: var(--orange); }
+
+    /* ── CFDI CARDS ── */
+    .cfdi-card { background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--border); box-shadow: var(--sh-card); border-radius: 3px; margin-bottom: 12px; transition: box-shadow .2s, border-color .2s; }
+    .cfdi-card:hover { box-shadow: var(--sh-card-hover); border-color: var(--mid); }
+    .cfdi-card-head { padding: 14px 16px 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .cfdi-rfc { font-family: monospace; font-size: 12px; font-weight: 700; color: var(--cream); }
+    .cfdi-razon { font-size: 13px; font-weight: 600; color: var(--cream); margin-top: 2px; }
+    .cfdi-meta { font-family: monospace; font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+    .cfdi-meta a { color: var(--orange); text-decoration: none; }
+    .status-badge {
+      font-family: monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+      padding: 3px 8px; border: 1px solid; flex-shrink: 0;
+    }
+    .status-badge.pending { border-color: var(--warn); color: var(--warn); }
+    .status-badge.in_progress { border-color: var(--blue); color: #60a5fa; }
+    .status-badge.done { border-color: var(--green); color: var(--green); }
+    .cfdi-actions { padding: 0 16px 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .cfdi-btn {
+      font-family: monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+      padding: 6px 10px; border: 1px solid var(--border); background: none; color: var(--muted);
+      cursor: pointer; transition: border-color .15s, color .15s;
+    }
+    .cfdi-btn:hover { border-color: var(--cream); color: var(--cream); }
+    .cfdi-btn.primary { border-color: var(--orange); color: var(--orange); }
+    .cfdi-btn.primary:hover { background: var(--orange); color: #fff; }
+    .cfdi-btn.danger { border-color: var(--bad); color: var(--bad); }
+    .cfdi-btn.danger:hover { background: var(--bad); color: #fff; }
+    .cfdi-notas { padding: 0 16px 12px; font-size: 12px; color: var(--muted); font-style: italic; line-height: 1.5; }
+    .cfdi-time { font-family: monospace; font-size: 9px; color: var(--muted); padding: 0 16px 14px; }
+
+    /* ── ENTREGA CARDS (home feed) ── */
+    .ent-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border: 1px solid var(--border); background: var(--card); margin-bottom: 8px;
+    }
+    .ent-info { flex: 1; min-width: 0; }
+    .ent-name { font-size: 13px; font-weight: 600; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ent-meta { font-family: monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .ent-status { font-family: monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border: 1px solid; flex-shrink: 0; }
+    .ent-status.sent { border-color: var(--green); color: var(--green); }
+    .ent-status.pending { border-color: var(--warn); color: var(--warn); }
+
+    /* ── EMPTY STATE ── */
+    .empty { padding: 28px; text-align: center; font-family: monospace; font-size: 11px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; border: 1px dashed var(--border); }
+
+    /* ── REPLY MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 300; display: flex; align-items: flex-end; padding: 0; }
+    .modal-overlay.hidden { display: none; }
+    .modal { background: var(--card); border-top: 1px solid var(--border); width: 100%; max-height: 90vh; display: flex; flex-direction: column; }
+    .modal-head { background: var(--darker); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .modal-head h4 { font-size: 13px; font-weight: 700; color: var(--cream); }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; line-height: 1; }
+    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+    .reply-info { background: var(--dark); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 16px; font-family: monospace; font-size: 11px; color: var(--muted); line-height: 1.7; }
+    .reply-info strong { color: var(--cream); }
+    .modal-label { font-family: monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; }
+    #reply-msg {
+      width: 100%; background: var(--dark); border: 1px solid var(--border); color: var(--cream);
+      font-family: inherit; font-size: 13px; padding: 12px; resize: none; outline: none; line-height: 1.6;
+    }
+    #reply-msg:focus { border-color: var(--orange); }
+    #reply-status { font-family: monospace; font-size: 11px; min-height: 16px; margin: 10px 0; color: var(--muted); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 14px; padding-bottom: env(safe-area-inset-bottom); }
+    .modal-actions button {
+      font-family: monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+      padding: 12px 16px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer;
+    }
+    .modal-actions .btn-send { flex: 1; border-color: var(--orange); color: var(--orange); }
+    .modal-actions .btn-send:hover { background: var(--orange); color: #fff; }
+
+    /* ── GENERIC MODAL (config / spei / send / new-client) ── */
+    .gmodal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .gmodal-bg.show { display: flex; animation: gfade .18s ease; }
+    @keyframes gfade { from { opacity: 0 } to { opacity: 1 } }
+    .gmodal-bg.show .gmodal { animation: gpop .22s cubic-bezier(.2,.9,.3,1.2); }
+    @keyframes gpop { from { opacity: 0; transform: translateY(8px) scale(.98) } to { opacity: 1; transform: translateY(0) scale(1) } }
+    .gmodal { background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--border); box-shadow: var(--sh-pop); border-radius: 4px; max-width: 440px; width: 100%; padding: 24px; max-height: 90vh; overflow-y: auto; }
+    .gmodal h3 { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 800; font-size: 22px; margin-bottom: 6px; color: var(--cream); }
+    .gmodal .sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .gfield { margin-bottom: 12px; }
+    .gfield label { display: block; font-family: monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .gfield input, .gfield select, .gfield textarea {
+      width: 100%; background: var(--dark); border: 1px solid var(--border); color: var(--cream);
+      font-family: inherit; font-size: 13px; padding: 10px 12px; outline: none; resize: vertical;
+    }
+    .gfield input:focus, .gfield select:focus, .gfield textarea:focus { border-color: var(--orange); }
+    .gfield .hint { font-family: monospace; font-size: 9px; color: var(--muted); margin-top: 4px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .gmodal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+    .gbtn { font-family: monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 10px 18px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: border-color .2s, color .2s, background .2s; }
+    .gbtn:hover { border-color: var(--cream); color: var(--cream); }
+    .gbtn.solid { background: var(--orange); border-color: var(--orange); color: #fff; box-shadow: 0 10px 24px -10px rgba(255,90,31,.5); }
+    .gbtn.solid:hover { filter: brightness(1.08); box-shadow: 0 12px 28px -8px rgba(255,90,31,.55); }
+    .gstatus { font-family: monospace; font-size: 11px; margin-top: 10px; min-height: 16px; color: var(--muted); }
+    .gstatus.ok { color: var(--green); }
+    .gstatus.err { color: var(--bad); }
+    .gbtn.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+    .gbtn.danger:hover { filter: brightness(1.08); }
+    .gchoice-opt { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--border); margin-bottom: 8px; cursor: pointer; font-size: 13px; color: var(--cream); }
+    .gchoice-opt:hover { border-color: var(--muted); }
+    .gchoice-opt input[type="radio"] { accent-color: var(--orange); width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: color-mix(in srgb, var(--card) 86%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border); box-shadow: 0 -8px 24px -12px rgba(0,0,0,.5);
+      display: flex; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      position: relative;
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 10px 4px; text-decoration: none; color: var(--muted); background: none; border: none;
+      font-family: monospace; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; gap: 4px;
+      transition: color .2s;
+    }
+    .nav-item.active, .nav-item:hover { color: var(--orange); }
+    .nav-item::before {
+      content: ''; position: absolute; top: 2px; left: 50%; width: 0; height: 2px; background: var(--orange);
+      border-radius: 2px; transform: translateX(-50%); transition: width .2s ease;
+    }
+    .nav-item.active::before { width: 18px; }
+    .nav-ico { font-size: 17px; line-height: 1; transition: transform .2s ease; }
+    .nav-item.active .nav-ico { transform: translateY(-1px); }
+    .nav-lbl { font-size: 8px; }
+
+    /* ── BOTTOM NAV OVERFLOW (mobile: 5 primary tabs + "Más" sheet) ── */
+    .nav-item--more { display: none; }
+    .nav-more-sheet {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 150;
+      background: var(--card); border-top: 1px solid var(--border);
+      padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+      transform: translateY(100%); transition: transform .25s ease;
+    }
+    .nav-more-sheet.show { transform: translateY(0); }
+    .nav-more-item {
+      display: flex; align-items: center; gap: 14px; width: 100%; min-height: 48px;
+      padding: 12px 14px; background: none; border: none; color: var(--cream);
+      font-family: monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+      text-align: left; cursor: pointer;
+    }
+    .nav-more-item:active { color: var(--orange); }
+    .nav-more-item .nav-ico { font-size: 16px; width: 20px; text-align: center; }
+    .nav-more-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 140;
+    }
+    .nav-more-backdrop.show { display: block; }
+    @media (max-width: 899px) {
+      .nav-item--overflow { display: none; }
+      .nav-item--more { display: flex; }
+    }
+    @media (min-width: 900px) {
+      .nav-more-sheet, .nav-more-backdrop { display: none !important; }
+    }
+
+    /* ── LOADING ── */
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin .7s linear infinite; margin: 24px auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-msg { display: flex; align-items: center; justify-content: center; padding: 24px; }
+
+    /* ── PUSH BANNER ── */
+    #push-banner {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 10px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    #push-banner.hidden { display: none; }
+    #push-banner-text { flex: 1; font-family: monospace; font-size: 10px; letter-spacing: .08em; color: var(--muted); }
+    #push-banner-btn {
+      font-family: monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+      padding: 7px 12px; border: 1px solid var(--orange); color: var(--orange); background: none; cursor: pointer;
+    }
+    #push-banner-btn:hover { background: var(--orange); color: #fff; }
+    #push-banner-dismiss { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; padding: 4px; }
+
+    /* ════════════════════════════════════════════════════════════
+       FACTURA TAB
+       ════════════════════════════════════════════════════════════ */
+    .fac-doc-types { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px; margin-bottom: 16px; }
+    .fac-doc-type {
+      font-family: monospace; font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase;
+      padding: 9px 5px; text-align: center; border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--card-hi), var(--card)); box-shadow: var(--sh-card); border-radius: 3px; color: var(--muted);
+      transition: border-color .2s, color .2s, box-shadow .2s, transform .2s;
+    }
+    .fac-doc-type:hover { box-shadow: var(--sh-card-hover); transform: translateY(-1px); }
+    .fac-doc-type.active { border-color: var(--orange); color: var(--orange); font-weight: 600; box-shadow: var(--sh-card-hover); }
+    .fac-field { margin-bottom: 10px; }
+    .fac-field label { display: block; font-family: monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+    .fac-field input, .fac-field select, .fac-field textarea {
+      width: 100%; background: var(--card); border: 1px solid var(--border); color: var(--cream);
+      font-family: inherit; font-size: 13px; padding: 9px 11px; outline: none; resize: vertical;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.2); transition: border-color .2s, box-shadow .2s;
+    }
+    .fac-field input:focus, .fac-field select:focus, .fac-field textarea:focus { border-color: var(--orange); box-shadow: inset 0 1px 2px rgba(0,0,0,.15), 0 0 0 3px rgba(255,90,31,.12); }
+    .fac-field textarea { min-height: 64px; }
+    .fac-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .fac-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .fac-toggles { display: flex; flex-wrap: wrap; gap: 14px; margin: 4px 0 12px; }
+    .fac-tg { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--cream); }
+    .fac-tg input { width: auto; }
+
+    .fac-concepto-row { border: 1px solid var(--border); background: linear-gradient(180deg, var(--card-hi), var(--card)); box-shadow: var(--sh-card); border-radius: 3px; padding: 10px; margin-bottom: 8px; position: relative; }
+    .fac-concepto-row .fac-del { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; line-height: 1; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; transition: border-color .2s, color .2s; }
+    .fac-concepto-row .fac-del:hover { border-color: var(--bad); color: var(--bad); }
+    .fac-concepto-row .fac-grid-c { display: grid; grid-template-columns: 1fr 64px 80px; gap: 6px; margin-top: 6px; }
+    .fac-btn-sm { font-family: monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 8px; width: 100%; border: 1px dashed var(--border); background: none; color: var(--muted); transition: border-color .2s, color .2s; }
+    .fac-btn-sm:hover { border-color: var(--orange); color: var(--orange); }
+
+    .fac-ai-box { border: 1px solid var(--border); background: linear-gradient(180deg, var(--card-hi), var(--card)); box-shadow: var(--sh-card); border-radius: 3px; padding: 14px; margin-bottom: 16px; }
+    .fac-ai-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .fac-ai-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grad); }
+    .fac-ai-title { font-family: monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--cream); }
+    .fac-ai-hint { font-size: 11.5px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+    .fac-ai-status { font-family: monospace; font-size: 10px; margin-top: 8px; color: var(--muted); white-space: pre-wrap; }
+    .fac-ai-status.err { color: var(--bad); }
+    .fac-ai-status.ok { color: var(--green); }
+    .fac-ai-result { margin-top: 10px; display: none; }
+    .fac-ai-result.show { display: block; }
+    .fac-ai-sug { border: 1px dashed var(--border); padding: 9px 10px; margin-bottom: 7px; background: var(--dark); }
+    .fac-ai-sug__name { font-weight: 600; font-size: 12.5px; color: var(--cream); }
+    .fac-ai-sug__meta { font-family: monospace; font-size: 10px; color: var(--orange); margin: 3px 0; }
+    .fac-ai-sug__just { font-size: 11px; color: var(--muted); }
+    .fac-ai-summary { font-size: 11.5px; color: var(--cream); border-left: 2px solid var(--orange); padding: 6px 10px; margin-bottom: 8px; background: var(--dark); }
+    .fac-spin { display: inline-block; width: 9px; height: 9px; border: 2px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -1px; margin-right: 5px; }
+    .fac-btn-accent { background: var(--orange); color: #fff; border: none; font-family: monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; padding: 10px 16px; width: 100%; box-shadow: 0 10px 24px -10px rgba(255,90,31,.5); transition: filter .2s, box-shadow .2s; }
+    .fac-btn-accent:hover { filter: brightness(1.08); box-shadow: 0 12px 28px -8px rgba(255,90,31,.55); }
+
+    .fac-xml-drop { border: 2px dashed var(--border); padding: 24px 16px; text-align: center; cursor: pointer; position: relative; margin-bottom: 16px; transition: border-color .2s; }
+    .fac-xml-drop:hover { border-color: var(--orange); }
+    .fac-xml-drop p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .fac-xml-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .fac-xml-summary { background: linear-gradient(180deg, var(--card-hi), var(--card)); box-shadow: var(--sh-card); border-radius: 3px; border: 1px solid var(--green); padding: 12px 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.7; display: none; }
+    .fac-xml-summary.show { display: block; }
+    .fac-xml-summary .mono { color: var(--orange); }
+    .cfdi-match-box { display: none; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .cfdi-match-box.show { display: flex; }
+    .cfdi-match-row { background: linear-gradient(180deg, var(--card-hi), var(--card)); box-shadow: var(--sh-card); border-radius: 3px; border: 1px solid var(--orange); padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; flex-wrap: wrap; }
+
+    /* ── CFDI REPRESENTACIÓN IMPRESA (marca GAPT, una sola página) ── */
+    .cfdi-rep-wrap { background: #ddd5c4; padding: 16px 4px; margin: 0 -16px 16px; overflow-x: auto; }
+    [data-theme="light"] .cfdi-rep-wrap { background: #e8e0cf; }
+    .cfdi-rep-sheet {
+      width: 100%; max-width: 680px; aspect-ratio: 8.5 / 11; margin: 0 auto; background: #fff; color: #161310;
+      padding: 16px 20px; box-shadow: 0 6px 24px rgba(0,0,0,.18);
+      font-family: Arial, Helvetica, sans-serif; font-size: 9.5px; line-height: 1.35;
+      position: relative; display: flex; flex-direction: column;
+    }
+    .cfdi-rep-sheet * { color: inherit; }
+    .rep-grad { height: 4px; background: var(--grad); margin: -16px -20px 10px; }
+    .rep-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 4px; }
+    .rep-mark .lock { display: inline-flex; align-items: center; gap: 8px; }
+    .rep-mark .lock svg { display: block; width: 24px; height: 24px; }
+    .rep-mark .gapt { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 20px; line-height: 1; letter-spacing: -.05em; display: inline-flex; align-items: flex-end; }
+    .rep-mark .gapt .stop { width: .17em; height: .17em; background: #FF5A1F; display: inline-block; margin-left: .07em; margin-bottom: .05em; }
+    .rep-mark .sub { display: block; font-family: monospace; font-size: 6.5px; letter-spacing: .2em; color: #6E665B; margin-top: 4px; text-transform: uppercase; }
+    .rep-doc { text-align: right; }
+    .rep-doc .tipo { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 800; font-size: 15px; letter-spacing: .3px; text-transform: uppercase; }
+    .rep-doc .folio { font-family: monospace; font-size: 9.5px; color: #FF5A1F; font-weight: 600; margin-top: 1px; }
+    .rep-doc .meta { font-family: monospace; font-size: 8px; color: #6E665B; margin-top: 4px; }
+    .rep-section { border-top: 1px solid #DCD2BF; padding-top: 4px; margin-top: 5px; }
+    .rep-section:first-of-type { border-top: none; margin-top: 0; }
+    .rep-h { font-family: monospace; font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; color: #FF5A1F; margin-bottom: 4px; }
+    .rep-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px; }
+    .rep-grid2 div { word-break: break-word; }
+    .rep-grid2 b { font-weight: 700; }
+    .rep-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px 12px; }
+    .rep-grid3 div { word-break: break-word; }
+    .rep-grid3 b { font-weight: 700; }
+    .rep-line-lbl { font-family: monospace; font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; color: #FF5A1F; margin-right: 8px; }
+    .rep-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+    .rep-two-col > div:first-child { border-right: 1px solid #DCD2BF; padding-right: 18px; }
+    .rep-two-col div div { word-break: break-word; line-height: 1.45; }
+    .rep-table { width: 100%; border-collapse: collapse; margin-top: 3px; font-size: 9px; }
+    .rep-table thead th { font-family: monospace; font-size: 7.5px; letter-spacing: .5px; text-transform: uppercase; text-align: left; padding: 4px 5px; border-top: 1.2px solid #161310; border-bottom: 1.2px solid #161310; }
+    .rep-table td { padding: 4px 5px; border-bottom: 1px solid #EAE2D2; vertical-align: top; }
+    .rep-table th.r, .rep-table td.r { text-align: right; }
+    .rep-table td.mono, .rep-table th { font-size: 8px; }
+    .rep-concepto-detail td { border-bottom: 1.2px solid #161310; padding-top: 2px; }
+    .rep-concepto-detail-grid { display: flex; gap: 14px; align-items: flex-start; }
+    .rep-concepto-detail-grid > div:first-child { flex: 1; min-width: 0; }
+    .rep-concepto-detail-grid b { display: block; font-family: monospace; font-size: 7px; letter-spacing: .5px; text-transform: uppercase; color: #6E665B; margin-bottom: 2px; }
+    .rep-imp-table { flex: none; border-collapse: collapse; font-size: 7.5px; }
+    .rep-imp-table th { font-family: monospace; font-size: 6.5px; letter-spacing: .3px; text-transform: uppercase; text-align: left; padding: 2px 6px; color: #6E665B; }
+    .rep-imp-table td { padding: 2px 6px; white-space: nowrap; }
+    .rep-imp-table th.r, .rep-imp-table td.r { text-align: right; }
+    .rep-totales { margin-left: auto; width: 220px; margin-top: 6px; }
+    .rep-totales div { display: flex; justify-content: space-between; padding: 1px 0; }
+    .rep-totales .rep-total-row { border-top: 1.2px solid #161310; margin-top: 3px; padding-top: 4px; font-weight: 700; }
+    .rep-totales .rep-total-row span:last-child { color: #FF5A1F; }
+    .rep-verify { display: flex; gap: 14px; align-items: center; }
+    .rep-qr-col { flex: none; text-align: center; }
+    .rep-qr-col #rep-qr { width: 72px; height: 72px; }
+    .rep-qr-col #rep-qr img, .rep-qr-col #rep-qr canvas { width: 72px !important; height: 72px !important; }
+    .rep-qr-lbl { display: block; font-family: monospace; font-size: 6px; letter-spacing: .08em; text-transform: uppercase; color: #6E665B; margin-top: 3px; }
+    .rep-sello { flex: 1; font-size: 7px; min-width: 0; }
+    .rep-sello-text { word-break: break-all; margin: 1px 0 4px; color: #6E665B; }
+    .rep-foot { padding-top: 6px; border-top: 1px solid #DCD2BF; display: flex; justify-content: space-between; font-family: monospace; font-size: 7px; letter-spacing: .5px; color: #6E665B; text-transform: uppercase; }
+    #rep-datos-section { margin-top: auto; }
+
+    /* ── CFDI XML SHEET (page 2 of "Descargar PDF + XML") — fixed at one letter
+       page; .cxs-code has a fixed height (~half the page) and its font-size is
+       shrunk by JS to fit within it, so the whole document always lands on
+       exactly 2 pages total (1 = rep, 1 = this sheet), never more. ── */
+    .cfdi-xml-sheet {
+      width: 816px; height: 1056px; box-sizing: border-box; background: #fff; color: #161310;
+      padding: 40px 48px; font-family: Arial, Helvetica, sans-serif; font-size: 9.5px; line-height: 1.4;
+      display: flex; flex-direction: column;
+    }
+    .cxs-grad { height: 4px; background: var(--grad); margin: -40px -48px 24px; }
+    .cxs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .cxs-mark .lock { display: inline-flex; align-items: center; gap: 8px; }
+    .cxs-mark .lock svg { display: block; width: 26px; height: 26px; }
+    .cxs-mark .gapt { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 20px; line-height: 1; letter-spacing: -.05em; display: inline-flex; align-items: flex-end; color: #161310; }
+    .cxs-mark .gapt .stop { width: .17em; height: .17em; background: #FF5A1F; display: inline-block; margin-left: .07em; margin-bottom: .05em; }
+    .cxs-mark .sub { display: block; font-family: monospace; font-size: 7px; letter-spacing: .2em; color: #6E665B; margin-top: 5px; text-transform: uppercase; }
+    .cxs-doc { text-align: right; }
+    .cxs-doc .tipo { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 800; font-size: 16px; letter-spacing: .3px; text-transform: uppercase; color: #161310; }
+    .cxs-doc .folio { font-family: monospace; font-size: 9px; color: #FF5A1F; font-weight: 600; margin-top: 2px; word-break: break-all; max-width: 280px; }
+    .cxs-doc .meta { font-family: monospace; font-size: 8px; color: #6E665B; margin-top: 4px; }
+    .cxs-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; border-top: 2px solid #FF5A1F; border-bottom: 1px solid #D5CFBF; padding: 14px 0; margin-bottom: 24px; }
+    .cxs-summary div { font-size: 10px; word-break: break-word; }
+    .cxs-summary b { font-family: monospace; font-size: 7.5px; letter-spacing: .1em; text-transform: uppercase; color: #6E665B; display: block; margin-bottom: 2px; font-weight: 400; }
+    .cxs-code-label { font-family: monospace; font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; color: #FF5A1F; margin-bottom: 8px; }
+    .cxs-code {
+      background: none; color: #161310; font-family: 'IBM Plex Mono', monospace; font-size: 8px; line-height: 1.55; font-weight: 700;
+      padding: 0; white-space: pre-wrap; word-break: break-all; margin: 0;
+      box-sizing: border-box; height: 460px; overflow: hidden;
+    }
+    .cxs-code .xh-tag { color: #B34310; }
+    .cxs-code .xh-attr { color: #3A352E; }
+    .cxs-code .xh-val { color: #6E665B; }
+    .cxs-truncated-note { font-family: monospace; font-size: 7px; color: #9B6B3C; margin-top: 6px; }
+    .cxs-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #D5CFBF; display: flex; justify-content: space-between; font-family: monospace; font-size: 7px; letter-spacing: .5px; color: #6E665B; text-transform: uppercase; }
+
+    .fac-saved-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      border: 1px solid var(--border); background: linear-gradient(180deg, var(--card-hi), var(--card));
+      box-shadow: var(--sh-card); border-radius: 3px; padding: 10px 12px; margin-bottom: 6px; font-size: 12px;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .fac-saved-item:hover { border-color: var(--orange); box-shadow: var(--sh-card-hover); transform: translateY(-1px); }
+    .fac-saved-item .folio { font-family: monospace; font-size: 10.5px; font-weight: 700; color: var(--cream); }
+    .fac-saved-item .cli { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px; }
+    .fac-saved-item .tot { font-family: monospace; font-size: 10.5px; color: var(--cream); }
+    .fac-badge { font-family: monospace; font-size: 8.5px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--border); color: var(--muted); }
+    .fac-badge.enviado { color: var(--warn); border-color: var(--warn); }
+    .fac-badge.aceptado, .fac-badge.pagado { color: var(--green); border-color: var(--green); }
+
+    /* The paper sheet — always white, regardless of app theme */
+    .fac-sheet-wrap { background: #ddd5c4; padding: 16px 4px; margin: 0 -16px 16px; overflow-x: auto; }
+    [data-theme="light"] .fac-sheet-wrap { background: #e8e0cf; }
+    .fac-sheet {
+      width: 100%; max-width: 600px; margin: 0 auto; background: #fff; color: #161310;
+      min-height: 700px; padding: 28px 24px; box-shadow: 0 6px 24px rgba(0,0,0,.18);
+      position: relative; display: flex; flex-direction: column; font-size: 12px;
+    }
+    .fac-sheet * { color: inherit; }
+    .fac-sheet__grad { height: 4px; background: var(--grad); margin: -28px -24px 22px; }
+    .fac-sheet__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+    .fac-sheet__mark .lock { display: inline-flex; align-items: center; gap: 8px; }
+    .fac-sheet__mark .lock svg { display: block; width: 26px; height: 26px; }
+    .fac-sheet__mark .gapt { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 18px; line-height: 1; letter-spacing: -.05em; display: inline-flex; align-items: flex-end; }
+    .fac-sheet__mark .gapt .stop { width: .17em; height: .17em; background: #FF5A1F; display: inline-block; margin-left: .07em; margin-bottom: .05em; }
+    .fac-sheet__mark .sub { display: block; font-family: monospace; font-size: 6px; letter-spacing: .25em; color: #6E665B; margin-top: 4px; text-transform: uppercase; }
+    .fac-sheet__doc { text-align: right; }
+    .fac-sheet__doc .tipo { font-family: 'Archivo', sans-serif; font-stretch: 125%; font-weight: 800; font-size: 14px; letter-spacing: .3px; text-transform: uppercase; }
+    .fac-sheet__doc .folio { font-family: monospace; font-size: 8.5px; color: #FF5A1F; font-weight: 600; margin-top: 2px; }
+    .fac-sheet__doc .meta { font-family: monospace; font-size: 7px; color: #6E665B; margin-top: 3px; line-height: 1.5; }
+    .fac-sheet__parties { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0 10px; padding-top: 8px; border-top: 1px solid #DCD2BF; }
+    .fac-sheet__party h4 { font-family: monospace; font-size: 6px; letter-spacing: 1.5px; text-transform: uppercase; color: #FF5A1F; margin-bottom: 4px; }
+    .fac-sheet__party .nm { font-weight: 700; font-size: 11px; }
+    .fac-sheet__party p { font-size: 7px; color: #3A352E; line-height: 1.5; text-align: justify; }
+    .fac-sheet table { width: 100%; border-collapse: collapse; font-size: 9px; }
+    .fac-sheet thead th { font-family: monospace; font-size: 7px; letter-spacing: 1px; text-transform: uppercase; text-align: left; padding: 4px 6px; border-top: 1.5px solid #161310; border-bottom: 1.5px solid #161310; }
+    .fac-sheet thead th.r, .fac-sheet td.r { text-align: right; }
+    .fac-sheet tbody td { padding: 4px 6px; border-bottom: 1px solid #EAE2D2; vertical-align: top; }
+    .fac-sheet tbody td .concepto-titulo { font-weight: 700; }
+    .fac-sheet tbody td .concepto-detalle { display: block; font-size: 6px; color: #6E665B; line-height: 1.4; margin-top: 2px; text-align: justify; }
+    .fac-sheet .totales { margin-left: auto; width: 200px; margin-top: 6px; font-size: 9.5px; }
+    .fac-sheet .totales .row { display: flex; justify-content: space-between; padding: 3px 6px; }
+    .fac-sheet .totales .row span:last-child { font-family: monospace; }
+    .fac-sheet .totales .total { border-top: 1.5px solid #161310; margin-top: 4px; padding-top: 5px; font-weight: 700; font-size: 10.5px; }
+    .fac-sheet .totales .total span:last-child { color: #FF5A1F; }
+    .fac-sheet__pay-btn { display:inline-block; background:#FF5A1F; color:#fff !important; font-family:'Archivo',sans-serif; font-weight:700; font-size:7px; letter-spacing:.08em; text-transform:uppercase; padding:5px 10px; text-decoration:none; }
+    .rem-action-btn { font-family:monospace; font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:7px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; transition: border-color .2s, color .2s; }
+    .rem-action-btn:hover { border-color: var(--cream); color: var(--cream); }
+    .rem-action-btn:hover { border-color:var(--cream); color:var(--cream); }
+    .rem-action-paid { color:var(--orange) !important; border-color:var(--orange) !important; }
+    .rem-action-stop { color:var(--bad) !important; }
+    .inv-filter-btn { font-family:monospace; font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:6px 12px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; }
+    .inv-filter-btn.active { background:var(--orange); color:#fff; border-color:var(--orange); }
+    .inv-status-badge { display:inline-block; font-family:monospace; font-size:8px; letter-spacing:.08em; text-transform:uppercase; padding:2px 6px; border:1px solid; }
+    .inv-status-pagado { color:#4ADE80; border-color:#4ADE80; }
+    .inv-status-pendiente { color:var(--muted); border-color:var(--border); }
+    .inv-status-parcial { color:#F59E0B; border-color:#F59E0B; }
+    .inv-status-cancelado { color:var(--bad); border-color:var(--bad); }
+    .fin-metric { border:1px solid var(--border); background:var(--card); padding:12px 14px; }
+    .fin-metric-val { font-family:monospace; font-size:18px; font-weight:700; color:var(--cream); }
+    .fin-metric-val.orange { color:var(--orange); }
+    .fin-metric-val.green { color:#4ADE80; }
+    .fin-metric-val.red { color:var(--bad); }
+    .fin-metric-lbl { font-family:monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:2px; }
+    .fac-sheet__pay-url { font-family:monospace; font-size:5px; color:#6E665B; margin-top:2px; word-break:break-all; }
+    .fac-sheet__notes { margin-top: auto; font-size: 4px; color: #6E665B; line-height: 1.4; }
+    .fac-sheet__notes h5 { font-family: monospace; font-size: 4px; letter-spacing: 1.5px; text-transform: uppercase; color: #FF5A1F; margin-bottom: 2px; margin-top: 5px; }
+    .fac-sheet__notes p { white-space: pre-wrap; text-align: justify; }
+    .fac-sheet__notes #fac-pBanco { text-align: left; line-height: 1.4; }
+    .fac-sheet__foot { padding-top: 10px; border-top: 1px solid #DCD2BF; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; font-family: monospace; font-size: 7px; letter-spacing: .8px; color: #6E665B; text-transform: uppercase; flex-wrap: wrap; }
+    .fac-sheet__legal { margin-top: 6px; font-size: 6px; color: #9B968C; line-height: 1.5; text-align: justify; }
+
+    .fac-actions-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .fac-actions-row .gbtn { flex: 1; min-width: 90px; }
+
+    /* Mobile default: these wrappers are invisible, DOM order = visual order (unchanged phone layout).
+       Desktop media query below turns .fac-layout into a real 2-column grid. */
+    .fac-layout, .fac-col-a, .fac-col-b, .fac-col-preview { display: contents; }
+
+    /* ════════════════════════════════════════════════════════════
+       ENTREGAS TAB
+       ════════════════════════════════════════════════════════════ */
+    .ent-inner-tabs { display: flex; border-bottom: 1px solid var(--border); margin: 0 -16px 16px; padding: 0 16px; }
+    .ent-inner-tab { padding: 10px 14px; font-family: monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .ent-inner-tab.active { color: var(--cream); border-bottom-color: var(--orange); }
+    .ent-inner-panel { display: none; }
+    .ent-inner-panel.active { display: block; }
+
+    .ent-toggle-row { display: flex; gap: 0; margin-bottom: 16px; }
+    .ent-toggle-btn { flex: 1; padding: 10px; font-family: monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; border: none; cursor: pointer; background: var(--card); color: var(--muted); }
+    .ent-toggle-btn.active { background: var(--orange); color: #fff; }
+
+    .ent-drop-zone { border: 2px dashed var(--border); padding: 30px 20px; text-align: center; cursor: pointer; position: relative; margin-bottom: 16px; }
+    .ent-drop-zone.drag-over { border-color: var(--orange); }
+    .ent-drop-zone p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .ent-drop-zone strong { color: var(--cream); }
+    .ent-drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .ent-file-pills { display: none; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .ent-file-pill { background: var(--card); padding: 9px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
+    .ent-file-pill .fname { font-size: 12px; font-weight: 600; flex: 1; word-break: break-all; color: var(--cream); }
+    .ent-file-pill .fsize { font-family: monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
+    .ent-rm-file { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 0 4px; }
+
+    .ent-card { background: var(--card); border: 1px solid var(--border); padding: 16px; margin-bottom: 14px; }
+    .ent-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 2px; color: var(--cream); }
+    .ent-card .lbl { font-family: monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: block; }
+
+    .ent-contacts-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+    .ent-contact-row { display: flex; gap: 7px; align-items: center; }
+    .ent-contact-row input { flex: 1; }
+    .ent-contact-row .star { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 13px; width: 32px; height: 32px; cursor: pointer; flex-shrink: 0; }
+    .ent-contact-row .star.main { border-color: #FFB300; color: #FFB300; }
+    .ent-contact-row .rmc { background: none; border: none; color: var(--muted); font-size: 15px; cursor: pointer; width: 26px; flex-shrink: 0; }
+
+    .ent-mode-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .ent-mode-opt { flex: 1; padding: 10px; border: 1px solid var(--border); cursor: pointer; text-align: center; }
+    .ent-mode-opt .mt { font-family: monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .ent-mode-opt .md { font-size: 10.5px; color: var(--muted); margin-top: 3px; line-height: 1.3; }
+    .ent-mode-opt.sel { border-color: var(--orange); }
+    .ent-mode-opt.sel .mt { color: var(--orange); }
+    .ent-mode-opt.sel .md { color: var(--cream); }
+
+    .ent-send-opts { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 14px; }
+    .ent-send-opt { padding: 8px 4px; border: 1px solid var(--border); cursor: pointer; text-align: center; }
+    .ent-send-opt .so-label { font-family: monospace; font-size: 8px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .ent-send-opt .so-val { font-size: 10.5px; color: var(--cream); margin-top: 2px; }
+    .ent-send-opt.sel { border-color: var(--orange); }
+    .ent-send-opt.sel .so-label { color: var(--orange); }
+    .ent-time-row { display: none; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .ent-time-row.show { display: flex; }
+    .ent-time-row input { flex: 1; }
+    .ent-send-preview { font-family: monospace; font-size: 9px; color: var(--muted); margin-bottom: 14px; min-height: 14px; }
+
+    .ent-pin-row { display: flex; gap: 8px; align-items: flex-end; }
+    .ent-pin-row input { font-family: monospace; font-size: 18px; letter-spacing: .25em; text-align: center; max-width: 120px; }
+    .ent-btn-gen { background: var(--dark); border: 1px solid var(--border); color: var(--muted); font-family: monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 10px 12px; cursor: pointer; white-space: nowrap; }
+
+    .ent-prog-wrap { background: var(--dark); height: 4px; margin-bottom: 14px; display: none; }
+    .ent-prog-bar { height: 4px; background: var(--grad); width: 0%; transition: width .3s; }
+    .ent-success-box { background: #0A1F12; border: 1px solid var(--green); padding: 18px; display: none; margin-bottom: 14px; }
+    .ent-success-box h4 { color: var(--green); font-size: 13px; margin-bottom: 6px; }
+    .ent-success-box p { font-size: 12px; color: var(--cream); margin-bottom: 12px; line-height: 1.5; }
+    .ent-link-box { background: var(--dark); border: 1px solid var(--border); padding: 8px 12px; font-family: monospace; font-size: 10px; color: var(--muted); word-break: break-all; margin-bottom: 12px; }
+    .ent-btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .ent-btn-send { background: var(--orange); color: #fff; border: none; cursor: pointer; font-family: monospace; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; padding: 14px; width: 100%; }
+    .ent-btn-send:disabled { opacity: .5; cursor: not-allowed; }
+
+    .ent-group-card { background: var(--card); border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; }
+    .ent-group-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .ent-group-name { font-size: 13px; font-weight: 700; color: var(--cream); }
+    .ent-group-count { font-family: monospace; font-size: 9px; color: var(--muted); margin-left: 6px; }
+    .ent-main-badge { font-family: monospace; font-size: 8px; letter-spacing: .08em; background: #2A2000; color: #FFB300; padding: 2px 6px; text-transform: uppercase; white-space: nowrap; }
+    .ent-btn-sm { background: none; border: 1px solid var(--border); color: var(--muted); font-family: monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 5px 9px; cursor: pointer; }
+    .ent-btn-sm.red:hover { border-color: var(--orange); color: var(--orange); }
+    .ent-new-group-form { background: var(--card); border: 1px solid var(--orange); padding: 18px; margin-bottom: 16px; display: none; }
+    .ent-new-group-form.show { display: block; }
+
+    .ent-dl-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .ent-dl-table th { text-align: left; font-family: monospace; font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
+    .ent-dl-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .ent-fname { font-weight: 600; color: var(--cream); }
+    .ent-fsub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .ent-badge { display: inline-block; font-family: monospace; font-size: 8px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 6px; }
+    .ent-badge.sent { background: #0A1F12; color: var(--green); }
+    .ent-badge.pending { background: #1A1400; color: #FFB300; }
+    .ent-badge.expired { background: #1F0A0A; color: #FF6B6B; }
+    .ent-badge.downloaded { background: #0A1F12; color: var(--green); }
+
+    .ent-drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 350; display: none; }
+    .ent-drawer-overlay.open { display: block; }
+    .ent-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); z-index: 351; padding: 0; transform: translateY(100%); transition: transform .28s cubic-bezier(.4,0,.2,1); max-height: 85vh; display: flex; flex-direction: column; }
+    .ent-drawer.open { transform: translateY(0); }
+    .ent-drawer-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
+    .ent-drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .ent-drawer-head h4 { font-size: 14px; font-weight: 700; color: var(--cream); }
+    .ent-drawer-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+    .ent-drawer-body { padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .ent-detail-row { display: flex; flex-direction: column; gap: 6px; }
+    .ent-detail-label { font-family: monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .ent-detail-val { background: var(--dark); border: 1px solid var(--border); padding: 9px 12px; font-family: monospace; font-size: 12px; color: var(--cream); word-break: break-all; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .ent-detail-val span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ent-pin-display { font-size: 20px; font-weight: 900; letter-spacing: .35em; }
+    .ent-btn-copy-sm { background: none; border: 1px solid var(--border); color: var(--muted); font-family: monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 5px 9px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    .ent-download-status { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .ent-dl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .ent-dl-dot.yes { background: var(--green); }
+    .ent-dl-dot.no { background: var(--border); }
+    .ent-drawer-actions { display: flex; flex-direction: column; gap: 8px; padding-top: 2px; }
+    .ent-btn-resend { background: var(--orange); color: #fff; border: none; cursor: pointer; font-family: monospace; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; padding: 13px; width: 100%; }
+    .ent-drawer-msg { font-family: monospace; font-size: 10px; text-align: center; min-height: 14px; }
+    .ent-drawer-msg.ok { color: var(--green); }
+    .ent-drawer-msg.err { color: var(--orange); }
+
+    /* ════════════════════════════════════════════════════════════
+       CLIENTES TAB
+       ════════════════════════════════════════════════════════════ */
+    .cli-card { background: var(--card); border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s; }
+    .cli-card:hover { border-color: var(--orange); }
+    .cli-name { font-size: 13.5px; font-weight: 700; color: var(--cream); }
+    .cli-meta { font-family: monospace; font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+    .cli-stats-mini { display: flex; gap: 12px; margin-top: 8px; font-family: monospace; font-size: 9px; color: var(--muted); }
+    .cli-stats-mini b { color: var(--orange); }
+    .cli-detail-back { font-family: monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); cursor: pointer; margin-bottom: 14px; display: inline-block; }
+    .cli-detail-back:hover { color: var(--orange); }
+    .cli-detail-head { background: var(--card); border: 1px solid var(--border); padding: 18px; margin-bottom: 18px; }
+    .cli-detail-head h2 { font-size: 18px; font-weight: 800; color: var(--cream); margin-bottom: 6px; }
+    .cli-hist-item { background: var(--card); border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .cli-hist-item .h-main { min-width: 0; }
+    .cli-hist-item .h-title { font-size: 12.5px; font-weight: 600; color: var(--cream); }
+    .cli-hist-item .h-sub { font-family: monospace; font-size: 9.5px; color: var(--muted); margin-top: 2px; }
+    .cli-hist-item .h-amt { font-family: monospace; font-size: 11px; color: var(--cream); white-space: nowrap; }
+    .cli-rfc-row { display: flex; gap: 8px; }
+    .cli-rfc-row input { flex: 1; }
+    .cli-rfc-generic { font-family: monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 9px 10px; border: 1px solid var(--border); background: var(--dark); color: var(--muted); white-space: nowrap; }
+    .cli-rfc-generic:hover { border-color: var(--orange); color: var(--orange); }
+
+    @media (max-width: 600px) {
+      .fac-grid2, .fac-grid3 { grid-template-columns: 1fr; }
+      .grid2 { grid-template-columns: 1fr; }
+    }
+
+    /* ════════════════════════════════════════════════════════════
+       DESKTOP LAYOUT (≥900px) — sidebar nav, wider canvas.
+       Everything above this block is the phone/iPhone layout and is untouched.
+       ════════════════════════════════════════════════════════════ */
+    @media (min-width: 900px) {
+      body { padding-left: 220px; padding-bottom: 0; }
+
+      .bottom-nav {
+        top: calc(54px + env(safe-area-inset-top)); bottom: 0; left: 0; right: auto;
+        width: 220px; flex-direction: column; justify-content: flex-start;
+        border-top: none; border-right: 1px solid var(--border); padding-bottom: 0; padding-top: 16px;
+      }
+      .nav-item { flex: none; flex-direction: row; justify-content: flex-start; gap: 12px; padding: 13px 22px; }
+      .nav-ico { font-size: 16px; }
+      .nav-lbl { font-size: 11px; letter-spacing: .08em; }
+
+      .container { max-width: 880px; padding: 32px 40px; }
+
+      /* Factura: two-column — form on the left, sheet preview pinned on the right.
+         fac-col-a/preview/b are real grid items only here; on mobile .fac-layout
+         is display:contents so they're invisible wrappers and DOM order is unchanged. */
+      #tab-factura .container { max-width: 1320px; }
+      .fac-layout {
+        display: grid; grid-template-columns: minmax(0,1fr) 460px; column-gap: 40px; align-items: start;
+      }
+      .fac-col-a { display: block; grid-column: 1; grid-row: 1; }
+      .fac-col-b { display: block; grid-column: 1; grid-row: 2; }
+      .fac-col-preview { display: block; grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 24px; align-self: start; }
+      #fac-preview-label { margin-top: 0 !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── PIN GATE ── -->
+<div id="pin-gate">
+  <div class="g-logo">
+    <svg class="logo-sym" viewBox="0 0 100 100" shape-rendering="crispEdges">
+      <rect class="sym-base" width="100" height="100"/>
+      <rect class="sym-seam" x="57" width="6" height="100"/>
+    </svg>
+    <span class="logo-text">GAPT<i class="logo-stop"></i></span><span class="g-one">ONE</span>
+  </div>
+  <div class="sub">Portal interno</div>
+  <div class="gline"></div>
+  <input type="password" inputmode="numeric" maxlength="6" id="pin-input" placeholder="· · · ·" autocomplete="off">
+  <div id="pin-err"></div>
+  <button onclick="verifyPin()">Entrar →</button>
+</div>
+
+<!-- ── APP ── -->
+<div id="app" style="display:none">
+
+  <div class="page-header">
+    <div class="topbar">
+      <div class="gapt-logo">
+        <svg class="logo-sym" viewBox="0 0 100 100" shape-rendering="crispEdges">
+          <rect class="sym-base" width="100" height="100"/>
+          <rect class="sym-seam" x="57" width="6" height="100"/>
+        </svg>
+        <span class="logo-text">GAPT<i class="logo-stop"></i></span>
+      </div>
+      <span class="product-label" id="topbar-tab-label">ONE</span>
+      <span class="topbar-time" id="topbar-time"></span>
+      <button class="topbar-icon-btn" onclick="toggleTheme()" title="Tema">◐</button>
+      <button class="topbar-icon-btn" onclick="loadAll().then(()=>{lastRefresh=Date.now();updateRefreshLabel()})" title="Actualizar">↻</button>
+      <button class="topbar-icon-btn" onclick="testPush()" id="push-test-btn" title="Probar notificaciones" style="display:none">🔔</button>
+    </div>
+    <div class="grad-bar"></div>
+  </div>
+
+  <!-- ══════════ TAB: HOME ══════════ -->
+  <div id="tab-home" class="tab-panel active">
+    <div class="container">
+      <div id="push-banner" class="hidden">
+        <span id="push-banner-text">🔔 Activa notificaciones para saber cuando llegan pagos, solicitudes y descargas.</span>
+        <button id="push-banner-btn" onclick="requestPush()">Activar</button>
+        <button id="push-banner-dismiss" onclick="dismissPushBanner()" title="Cerrar">✕</button>
+      </div>
+
+      <!-- Financial summary -->
+      <div id="home-fin-summary" style="margin-bottom:16px"></div>
+
+      <div class="stats-row">
+        <div class="stat-card" onclick="switchTab('cfdi')">
+          <div class="stat-num orange" id="stat-cfdi-num">—</div>
+          <div class="stat-lbl">CFDI pendientes</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('entregas')">
+          <div class="stat-num green" id="stat-ent-num">—</div>
+          <div class="stat-lbl">Entregas activas</div>
+        </div>
+        <div class="stat-card" onclick="switchTab('recordatorios')">
+          <div class="stat-num orange" id="stat-cobros-num">—</div>
+          <div class="stat-lbl">Por cobrar</div>
+        </div>
+      </div>
+
+      <div class="quick-row">
+        <button class="quick-btn" onclick="switchTab('factura')">✎ &nbsp;Nueva cotización</button>
+        <button class="quick-btn" onclick="switchTab('entregas')">↑ &nbsp;Nueva entrega</button>
+        <button class="quick-btn" onclick="switchTab('gastos')">− &nbsp;Registrar gasto</button>
+      </div>
+
+      <div class="section-label">_ Solicitudes de CFDI recientes</div>
+      <div id="home-cfdi-list"><div class="loading-msg"><div class="spinner"></div></div></div>
+
+      <div class="section-label" style="margin-top:28px">_ Entregas recientes</div>
+      <div id="home-ent-list"><div class="loading-msg"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB: FACTURA ══════════ -->
+  <div id="tab-factura" class="tab-panel">
+    <div class="container">
+      <div class="fac-layout"><div class="fac-col-a">
+
+      <div class="section-label">_ 01 / Tipo de documento</div>
+      <div class="fac-doc-types" id="fac-doc-types"></div>
+
+      <div class="section-label">_ 02 / Datos generales</div>
+      <div class="fac-grid3">
+        <div class="fac-field"><label>Folio</label><input id="fac-fFolio" class="mono" readonly></div>
+        <div class="fac-field"><label>Fecha</label><input id="fac-fFecha" type="date"></div>
+        <div class="fac-field"><label>Vigencia (días)</label><input id="fac-fVigencia" type="number" value="15" min="0"></div>
+      </div>
+      <div class="fac-field"><label>Proyecto / Asunto</label><input id="fac-fProyecto" placeholder="Ej. Casa Tepoztlán — Proyecto ejecutivo"></div>
+
+      <div class="section-label">_ 03 / Cliente</div>
+      <div class="fac-field"><label>Nombre / Razón social</label><input id="fac-cNombre" placeholder="Nombre del cliente" list="fac-client-suggestions"></div>
+      <datalist id="fac-client-suggestions"></datalist>
+      <div class="fac-grid2">
+        <div class="fac-field"><label>RFC (opcional)</label>
+          <div class="cli-rfc-row"><input id="fac-cRfc" class="mono" placeholder="XAXX010101000"><button type="button" class="cli-rfc-generic" onclick="document.getElementById('fac-cRfc').value='XAXX010101000';document.getElementById('fac-cRfc').dispatchEvent(new Event('input'))">Genérico</button></div>
+        </div>
+        <div class="fac-field"><label>Teléfono</label><input id="fac-cTel" placeholder="777 ..."></div>
+      </div>
+      <div class="fac-field"><label>Correo</label><input id="fac-cMail" type="email" placeholder="cliente@correo.com"></div>
+      <div class="fac-field"><label>Dirección</label><input id="fac-cDir" placeholder="Calle, colonia, ciudad"></div>
+      <div class="fac-field"><label>En atención a (opcional)</label><input id="fac-cAtencion" placeholder="Nombre de contacto"></div>
+
+      <div class="section-label">_ 04 / Asistente Claude</div>
+      <div class="fac-ai-box">
+        <div class="fac-ai-head"><span class="fac-ai-dot"></span><span class="fac-ai-title">Sugerir conceptos y precios</span></div>
+        <p class="fac-ai-hint">Describe el trabajo que hiciste o vas a hacer. Claude sugiere conceptos y cuánto cobrar (MXN).</p>
+        <textarea id="fac-aiPrompt" placeholder="Ej. Proyecto arquitectónico para casa habitación de 140 m² en Cuernavaca..." style="width:100%;background:var(--dark);border:1px solid var(--border);color:var(--cream);font-family:inherit;font-size:13px;padding:9px 11px;min-height:64px;outline:none"></textarea>
+        <button class="fac-btn-accent" id="fac-aiGo" style="margin-top:8px">✦ Consultar a Claude</button>
+        <div class="fac-ai-status" id="fac-aiStatus"></div>
+        <div class="fac-ai-result" id="fac-aiResult"></div>
+      </div>
+
+      <div class="section-label">_ 05 / Conceptos</div>
+      <div id="fac-conceptos"></div>
+      <button class="fac-btn-sm" id="fac-addConcepto" style="margin-bottom:16px">+ Agregar concepto</button>
+
+      <div class="section-label">_ 06 / Importes</div>
+      <div class="fac-toggles">
+        <label class="fac-tg"><input type="checkbox" id="fac-tIva" checked> IVA 16%</label>
+        <label class="fac-tg"><input type="checkbox" id="fac-tRetIsr"> Ret. ISR 1.25%</label>
+        <label class="fac-tg"><input type="checkbox" id="fac-tRetIva"> Ret. IVA 2/3</label>
+      </div>
+      <div class="fac-grid2">
+        <div class="fac-field"><label>Descuento (MXN)</label><input id="fac-fDescuento" type="number" value="0" min="0" step="0.01"></div>
+        <div class="fac-field"><label>Anticipo recibido (MXN)</label><input id="fac-fAnticipo" type="number" value="0" min="0" step="0.01"></div>
+      </div>
+
+      <div class="section-label">_ 07 / Condiciones y notas</div>
+      <div class="fac-field"><label>Condiciones de pago</label><textarea id="fac-fCondiciones">50% de anticipo para iniciar, 50% contra entrega.
+Precios en pesos mexicanos (MXN).</textarea></div>
+      <div class="fac-field"><label>Notas</label><textarea id="fac-fNotas"></textarea></div>
+      <div class="fac-field"><label>Datos bancarios</label><textarea id="fac-fBanco" class="mono"></textarea></div>
+
+      <div class="section-label">_ 08 / Estado</div>
+      <div class="fac-field">
+        <select id="fac-fStatus">
+          <option value="borrador">Borrador</option>
+          <option value="enviado">Enviado</option>
+          <option value="aceptado">Aceptado</option>
+          <option value="pagado">Pagado</option>
+        </select>
+      </div>
+
+      </div><!-- /fac-col-a --><div class="fac-col-preview">
+      <div class="section-label" id="fac-preview-label" style="margin-top:24px">_ Vista previa</div>
+      <div class="fac-sheet-wrap" id="fac-preview-wrap">
+        <div class="fac-sheet" id="fac-sheet">
+          <div class="fac-sheet__grad"></div>
+          <div class="fac-sheet__head">
+            <div class="fac-sheet__mark">
+              <span class="lock"><svg viewBox="0 0 100 100" shape-rendering="crispEdges" aria-hidden="true"><rect width="100" height="100" fill="#FF5A1F"/><rect x="57" width="6" height="100" fill="#FFFFFF"/></svg><span class="gapt">GAPT<i class="stop"></i></span></span>
+              <span class="sub">THE PROJECT · NO TWO ALIKE</span>
+            </div>
+            <div class="fac-sheet__doc">
+              <div class="tipo" id="fac-pTipo">Cotización</div>
+              <div class="folio" id="fac-pFolio">GAPT-COT-2026-001</div>
+              <div class="meta" id="fac-pMeta"></div>
+            </div>
+          </div>
+          <div class="fac-sheet__parties">
+            <div class="fac-sheet__party">
+              <h4>_ Emite</h4>
+              <div class="nm" id="fac-pEmisorNombre">Gustavo A. Pastrana T.</div>
+              <p id="fac-pEmisorDatos">THE GAPT PROJECT · Architecture &amp; Design Studio<br>Cuernavaca, Morelos · MX<br>hello@thegaptproject.com</p>
+            </div>
+            <div class="fac-sheet__party">
+              <h4 id="fac-pClienteLabel">_ Para</h4>
+              <div class="nm" id="fac-pCliNombre">—</div>
+              <p id="fac-pCliDatos"></p>
+            </div>
+          </div>
+          <div id="fac-pProyectoWrap" style="margin-bottom:12px;display:none">
+            <span style="font-family:monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#FF5A1F">_ Proyecto&nbsp;&nbsp;</span>
+            <span id="fac-pProyecto" style="font-weight:600;font-size:11.5px"></span>
+          </div>
+          <table>
+            <thead><tr>
+              <th style="width:24px">#</th><th>Concepto</th><th class="r" style="width:44px">Cant.</th>
+              <th style="width:56px">Unidad</th><th class="r" style="width:74px">P. Unit.</th><th class="r" style="width:84px">Importe</th>
+            </tr></thead>
+            <tbody id="fac-pConceptos"></tbody>
+          </table>
+          <div class="totales" id="fac-pTotales"></div>
+          <div id="fac-pPagoWrap" style="display:none;margin-top:10px;text-align:right">
+            <a id="fac-pPagoBtn" href="#" target="_blank" class="fac-sheet__pay-btn">Pagar en línea →</a>
+          </div>
+          <div class="fac-sheet__notes">
+            <div id="fac-pCondWrap"><h5>_ Condiciones</h5><p id="fac-pCondiciones"></p></div>
+            <div id="fac-pNotasWrap" style="display:none"><h5>_ Notas</h5><p id="fac-pNotas"></p></div>
+            <div id="fac-pBancoWrap" style="display:none"><h5>_ Datos bancarios</h5><p id="fac-pBanco" class="mono" style="font-size:4px"></p></div>
+          </div>
+          <div class="fac-sheet__legal" id="fac-pLegal"></div>
+          <div class="fac-sheet__foot">
+            <span>thegaptproject.com</span><span>hello@thegaptproject.com</span><span>EST. 2026 · MX</span>
+          </div>
+        </div>
+      </div>
+      </div><!-- /fac-col-preview --><div class="fac-col-b">
+
+      <div class="fac-actions-row">
+        <button class="gbtn" id="fac-btnNuevo">+ Nuevo</button>
+        <button class="gbtn solid" id="fac-btnGuardar">Guardar</button>
+        <button class="gbtn" id="fac-btnEnviar">✉ Enviar</button>
+      </div>
+      <div class="fac-actions-row">
+        <button class="gbtn" id="fac-btnPreviewPagado">✦ Ver sello</button>
+        <button class="gbtn" id="fac-btnSpei">✓ Pagado SPEI</button>
+        <button class="gbtn" id="fac-btnConfig">⚙ Config</button>
+      </div>
+
+      <div class="section-label" style="margin-top:8px">_ Documentos guardados</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
+        <span id="fac-syncStatus" class="mono" style="font-size:9px;color:var(--muted)">— Sin sincronizar</span>
+        <button class="ent-btn-sm" id="fac-btnSync">☁ Sincronizar</button>
+      </div>
+      <div id="fac-savedList"></div>
+      </div><!-- /fac-col-b --></div><!-- /fac-layout -->
+    </div>
+  </div>
+
+  <!-- ══════════ TAB: CFDI ══════════ -->
+  <div id="tab-cfdi" class="tab-panel">
+    <div class="container">
+      <div class="section-label">_ Generar PDF de CFDI (XML del SAT)</div>
+      <div class="fac-xml-summary" id="cfdi-xml-context" style="border-color:var(--orange)"></div>
+      <div class="fac-xml-drop" id="cfdi-xml-drop">
+        <p><strong>Sube un XML de CFDI timbrado</strong><br>Se genera la representación impresa en PDF, en una sola página</p>
+        <input type="file" id="cfdi-xml-input" accept=".xml">
+      </div>
+      <div class="fac-xml-summary" id="cfdi-xml-summary"></div>
+      <div class="cfdi-match-box" id="cfdi-xml-match"></div>
+
+      <div class="cfdi-rep-wrap" id="cfdi-rep-wrap" style="display:none">
+        <div class="cfdi-rep-sheet" id="cfdi-rep-sheet">
+          <div class="rep-grad"></div>
+          <div class="rep-head">
+            <div class="rep-mark">
+              <span class="lock"><svg viewBox="0 0 100 100" shape-rendering="crispEdges" aria-hidden="true"><rect width="100" height="100" fill="#FF5A1F"/><rect x="57" width="6" height="100" fill="#FFFFFF"/></svg><span class="gapt">GAPT<i class="stop"></i></span></span>
+              <span class="sub">REPRESENTACIÓN IMPRESA DE CFDI</span>
+            </div>
+            <div class="rep-doc">
+              <div class="tipo" id="rep-tipo">Ingreso</div>
+              <div class="folio" id="rep-folio-serie">—</div>
+              <div class="meta" id="rep-fecha-lugar"></div>
+            </div>
+          </div>
+
+          <div class="rep-section rep-two-col">
+            <div>
+              <div class="rep-h">_ Emisor</div>
+              <div id="rep-emisor-line"></div>
+            </div>
+            <div>
+              <div class="rep-h">_ Receptor</div>
+              <div id="rep-rec-line"></div>
+            </div>
+          </div>
+          <div class="rep-section" id="rep-global-row" style="display:none">
+            <span class="rep-line-lbl">_ Comprobante global</span>
+            <span id="rep-global-line"></span>
+          </div>
+          <div class="rep-section">
+            <div class="rep-h">_ Conceptos</div>
+            <table class="rep-table">
+              <thead><tr><th>Clave del producto y/o servicio</th><th>No. identificación</th><th>Cantidad</th><th>Clave de unidad</th><th>Unidad</th><th class="r">Valor unitario</th><th class="r">Importe</th><th class="r">Descuento</th><th>Objeto impuesto</th></tr></thead>
+              <tbody id="rep-conceptos"></tbody>
+            </table>
+            <div class="rep-totales">
+              <div><span>Subtotal</span><span id="rep-subtotal"></span></div>
+              <div id="rep-descuento-row" style="display:none"><span>Descuento</span><span id="rep-descuento"></span></div>
+              <div id="rep-traslado-row"><span id="rep-traslado-label">Impuestos trasladados IVA 16.00%</span><span id="rep-traslado"></span></div>
+              <div id="rep-ret-iva-row" style="display:none"><span id="rep-ret-iva-label">Impuestos retenidos IVA</span><span id="rep-ret-iva"></span></div>
+              <div id="rep-ret-isr-row" style="display:none"><span id="rep-ret-isr-label">Impuestos retenidos ISR</span><span id="rep-ret-isr"></span></div>
+              <div id="rep-ret-otro-row" style="display:none"><span>Otras retenciones</span><span id="rep-ret-otro"></span></div>
+              <div class="rep-total-row"><span>Total</span><span id="rep-total"></span></div>
+            </div>
+          </div>
+          <div class="rep-section" id="rep-datos-section">
+            <div class="rep-h">_ Datos del comprobante</div>
+            <div class="rep-grid3">
+              <div><b>Folio fiscal:</b> <span id="rep-uuid" class="mono"></span></div>
+              <div id="rep-folio-serie-row"><b>Folio / Serie:</b> <span id="rep-folio-serie2" class="mono"></span></div>
+              <div><b>Efecto de comprobante:</b> <span id="rep-tipo2"></span></div>
+              <div><b>Forma de pago:</b> <span id="rep-forma-pago"></span></div>
+              <div><b>Método de pago:</b> <span id="rep-metodo-pago"></span></div>
+              <div><b>Moneda:</b> <span id="rep-moneda"></span></div>
+              <div><b>Código postal, fecha y hora de emisión:</b> <span id="rep-fecha-lugar2"></span></div>
+              <div><b>No. de serie del CSD:</b> <span id="rep-noCert" class="mono"></span></div>
+              <div><b>RFC del proveedor de certificación:</b> <span id="rep-rfcprov" class="mono"></span></div>
+              <div><b>No. de serie del certificado SAT:</b> <span id="rep-noCertSat" class="mono"></span></div>
+              <div><b>Fecha y hora de certificación:</b> <span id="rep-fechatimbrado" class="mono"></span></div>
+              <div><b>Exportación:</b> <span id="rep-exportacion"></span></div>
+            </div>
+          </div>
+          <div class="rep-section rep-verify">
+            <div class="rep-qr-col"><div id="rep-qr"></div><span class="rep-qr-lbl">Verificar en el SAT</span></div>
+            <div class="rep-sello">
+              <div><b>Sello digital del CFDI:</b><div class="rep-sello-text" id="rep-sello-cfdi"></div></div>
+              <div><b>Sello digital del SAT:</b><div class="rep-sello-text" id="rep-sello-sat"></div></div>
+              <div><b>Cadena original del complemento de certificación digital del SAT:</b><div class="rep-sello-text" id="rep-cadena-original"></div></div>
+            </div>
+          </div>
+          <div class="rep-foot"><span>thegaptproject.com</span><span>Este documento es una representación impresa de un CFDI</span></div>
+        </div>
+      </div>
+
+      <!-- Hidden sheet — page 2+ of "Descargar PDF + XML". Unbounded height (unlike
+           cfdi-rep-sheet, which is forced to one aspect-ratio:8.5/11 page) so a long
+           XML can flow across as many pages as it needs instead of getting cropped. -->
+      <div id="cfdi-xml-sheet-wrap" style="position:absolute;left:-9999px;top:0;pointer-events:none;width:816px">
+        <div class="cfdi-xml-sheet" id="cfdi-xml-sheet">
+          <div class="cxs-grad"></div>
+          <div class="cxs-head">
+            <div class="cxs-mark">
+              <span class="lock"><svg viewBox="0 0 100 100" shape-rendering="crispEdges" aria-hidden="true"><rect width="100" height="100" fill="#FF5A1F"/><rect x="57" width="6" height="100" fill="#FFFFFF"/></svg><span class="gapt">GAPT<i class="stop"></i></span></span>
+              <span class="sub">XML DEL CFDI · REPRESENTACIÓN TÉCNICA</span>
+            </div>
+            <div class="cxs-doc">
+              <div class="tipo">XML</div>
+              <div class="folio" id="cxs-uuid">—</div>
+              <div class="meta" id="cxs-fecha"></div>
+            </div>
+          </div>
+          <div class="cxs-summary" id="cxs-summary"></div>
+          <div class="cxs-code-label">_ Contenido del XML</div>
+          <pre class="cxs-code" id="cxs-code"></pre>
+          <div class="cxs-truncated-note" id="cxs-truncated-note" style="display:none"></div>
+          <div class="cxs-foot"><span>thegaptproject.com</span><span>Documento generado a partir del XML timbrado por el SAT</span></div>
+        </div>
+      </div>
+
+      <button class="gbtn solid" id="cfdi-xml-send" style="display:none;width:100%;margin-bottom:10px;background:var(--green);border-color:var(--green)">✉ Enviar CFDI →</button>
+      <button class="gbtn solid" id="cfdi-xml-download" style="display:none;width:100%;margin-bottom:10px">Descargar PDF →</button>
+      <button class="gbtn" id="cfdi-xml-download-full" style="display:none;width:100%;margin-bottom:24px">Descargar PDF + XML →</button>
+
+      <div class="section-label">_ Solicitudes de CFDI</div>
+      <div class="filter-row">
+        <span class="ftab active" data-f="all" onclick="setCfdiFilter('all')">Todas</span>
+        <span class="ftab" data-f="pending" onclick="setCfdiFilter('pending')">Pendientes</span>
+        <span class="ftab" data-f="in_progress" onclick="setCfdiFilter('in_progress')">En proceso</span>
+        <span class="ftab" data-f="done" onclick="setCfdiFilter('done')">Atendidas</span>
+      </div>
+      <div id="cfdi-list"><div class="loading-msg"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB: ENTREGAS ══════════ -->
+  <div id="tab-entregas" class="tab-panel">
+    <div class="container">
+      <div class="ent-inner-tabs">
+        <div class="ent-inner-tab active" onclick="entSwitchTab('nueva')">Nueva</div>
+        <div class="ent-inner-tab" onclick="entSwitchTab('grupos')">Grupos</div>
+        <div class="ent-inner-tab" onclick="entSwitchTab('historial')">Historial</div>
+      </div>
+
+      <!-- ── ENT: NUEVA ── -->
+      <div id="ent-tab-nueva" class="ent-inner-panel active">
+        <div class="ent-toggle-row">
+          <button class="ent-toggle-btn active" id="ent-toggle-file" onclick="setEntregaType('file')">Archivo</button>
+          <button class="ent-toggle-btn" id="ent-toggle-link" onclick="setEntregaType('link')">Enlace externo</button>
+        </div>
+
+        <div id="ent-section-file">
+          <div class="ent-drop-zone" id="ent-drop-zone">
+            <p style="font-size:24px;margin-bottom:8px">☁</p>
+            <p><strong>Arrastra los archivos aquí</strong><br>o haz clic para seleccionar</p>
+            <input type="file" id="ent-file-input" multiple>
+          </div>
+          <div class="ent-file-pills" id="ent-file-pills">
+            <div id="ent-file-pill-list"></div>
+            <button class="fac-btn-sm" onclick="document.getElementById('ent-file-input-extra').click()">+ Agregar más archivos</button>
+            <input type="file" id="ent-file-input-extra" multiple style="display:none">
+          </div>
+        </div>
+
+        <div id="ent-section-link" style="display:none;margin-bottom:16px">
+          <div class="fac-field"><label>URL del enlace</label><input type="url" id="ent-ext-url" placeholder="https://wetransfer.com/..."></div>
+          <div class="fac-field"><label>Nombre descriptivo</label><input type="text" id="ent-ext-name" placeholder="RK-PROYECTO-ARCHIVO"></div>
+        </div>
+
+        <div class="ent-card">
+          <h4>Destinatarios</h4>
+          <span class="lbl">_ Grupo o contactos manuales</span>
+          <div class="fac-field" style="margin-bottom:14px"><select id="ent-group-sel" onchange="applyGroup()"><option value="">— Sin grupo —</option></select></div>
+          <div class="ent-contacts-list" id="ent-contacts-list"></div>
+          <button class="fac-btn-sm" onclick="addContactRow()">+ Agregar contacto</button>
+        </div>
+
+        <div class="ent-card">
+          <h4>Modo de envío</h4>
+          <span class="lbl">_ ¿Cómo se enviará el email?</span>
+          <div class="ent-mode-row">
+            <div class="ent-mode-opt sel" id="ent-mode-individual" onclick="setMode('individual')">
+              <div class="mt">Individual</div><div class="md">Cada persona recibe su propio email</div>
+            </div>
+            <div class="ent-mode-opt" id="ent-mode-cc" onclick="setMode('cc')">
+              <div class="mt">Con copia</div><div class="md">Uno al principal, resto en CC</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ent-card">
+          <h4>Mensaje</h4>
+          <span class="lbl">_ Usa {nombre} para personalizar</span>
+          <div class="fac-field"><textarea id="ent-f-msg" placeholder="Hola {nombre}, aquí los archivos..."></textarea></div>
+        </div>
+
+        <div class="ent-card">
+          <h4>Envío y acceso</h4>
+          <span class="lbl">_ Hora de envío y PIN de descarga</span>
+          <div class="ent-send-opts">
+            <div class="ent-send-opt sel" id="ent-sopt-now" onclick="setSendOpt('now')"><div class="so-label">Ahora</div><div class="so-val">Inmediato</div></div>
+            <div class="ent-send-opt" id="ent-sopt-today" onclick="setSendOpt('today')"><div class="so-label">Hoy</div><div class="so-val" id="ent-sopt-today-val">—</div></div>
+            <div class="ent-send-opt" id="ent-sopt-tomorrow" onclick="setSendOpt('tomorrow')"><div class="so-label">Mañana</div><div class="so-val" id="ent-sopt-tomorrow-val">—</div></div>
+            <div class="ent-send-opt" id="ent-sopt-custom" onclick="setSendOpt('custom')"><div class="so-label">Otra</div><div class="so-val">Fecha…</div></div>
+          </div>
+          <div class="ent-time-row" id="ent-time-row-hhmm"><input type="time" id="ent-f-time" value="09:00"></div>
+          <div class="ent-time-row" id="ent-time-row-custom"><input type="datetime-local" id="ent-f-sendat"></div>
+          <div class="ent-send-preview" id="ent-send-preview">Envío inmediato al hacer clic en Enviar</div>
+
+          <div class="fac-field" style="margin-bottom:14px">
+            <label>Enviar desde</label>
+            <select id="ent-f-from">
+              <option value="gustavo">Gustavo Pastrana — gustavo@thegaptproject.com</option>
+              <option value="hello">THE GAPT PROJECT — hello@thegaptproject.com</option>
+              <option value="proyectos">Proyectos — proyectos@thegaptproject.com</option>
+            </select>
+          </div>
+          <div class="fac-field" style="margin-bottom:0">
+            <label>PIN de acceso para el cliente</label>
+            <div class="ent-pin-row">
+              <input type="text" id="ent-f-pin" inputmode="numeric" maxlength="6" placeholder="1234">
+              <button class="ent-btn-gen" onclick="genPin()">↻ Generar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ent-prog-wrap" id="ent-prog-wrap"><div class="ent-prog-bar" id="ent-prog-bar"></div></div>
+        <div class="ent-success-box" id="ent-success-box">
+          <h4>✓ Entrega lista</h4>
+          <p id="ent-success-msg"></p>
+          <div class="ent-link-box" id="ent-success-link"></div>
+          <div class="ent-btn-row">
+            <button class="gbtn" onclick="copyLink()">Copiar enlace</button>
+            <button class="gbtn" onclick="resetEntForm()">Nueva entrega</button>
+          </div>
+        </div>
+        <button class="ent-btn-send" id="ent-btn-send" onclick="sendEntrega()">Enviar entrega →</button>
+      </div>
+
+      <!-- ── ENT: GRUPOS ── -->
+      <div id="ent-tab-grupos" class="ent-inner-panel">
+        <button class="fac-btn-sm" onclick="showNewGroupForm()" style="margin-bottom:16px">+ Nuevo grupo</button>
+        <div class="ent-new-group-form" id="ent-new-group-form">
+          <h4 style="margin-bottom:14px;color:var(--cream)">Nuevo grupo</h4>
+          <div class="fac-field" style="margin-bottom:14px"><label>Nombre del grupo</label><input type="text" id="ent-ng-name"></div>
+          <div class="lbl" style="margin-bottom:8px">_ Contactos (⭐ = principal)</div>
+          <div class="ent-contacts-list" id="ent-ng-contacts"></div>
+          <button class="fac-btn-sm" onclick="addNGContact()">+ Agregar contacto</button>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+            <button class="gbtn" onclick="cancelNewGroup()">Cancelar</button>
+            <button class="gbtn solid" onclick="saveNewGroup()">Guardar grupo</button>
+          </div>
+        </div>
+        <div id="ent-groups-list"></div>
+      </div>
+
+      <!-- ── ENT: HISTORIAL ── -->
+      <div id="ent-tab-historial" class="ent-inner-panel">
+        <div id="ent-hist-list"><div class="empty">Cargando...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB: CLIENTES ══════════ -->
+  <div id="tab-recordatorios" class="tab-panel">
+    <div class="container" style="max-width:640px">
+
+      <div class="section-label" style="margin-top:0">_ Nuevo recordatorio</div>
+      <div style="border:1px solid var(--border);background:var(--card);padding:16px;margin-bottom:24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <div class="fac-label">Folio</div>
+            <input id="rem-folio" class="fac-input" placeholder="NC-001" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Total (MXN)</div>
+            <input id="rem-total" class="fac-input" type="number" placeholder="0.00" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Nombre del cliente</div>
+            <input id="rem-nombre" class="fac-input" placeholder="Juan García" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Tipo de documento</div>
+            <input id="rem-tipo" class="fac-input" placeholder="Nota de cobro" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Email del cliente</div>
+            <input id="rem-email" class="fac-input" type="email" placeholder="cliente@email.com" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Link de pago (opcional)</div>
+            <input id="rem-link" class="fac-input" type="url" placeholder="https://..." style="width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <button onclick="remCreate()" class="fac-btn" style="width:100%">Crear recordatorio</button>
+        <div id="rem-create-err" style="font-family:monospace;font-size:10px;color:var(--bad);margin-top:8px;display:none"></div>
+      </div>
+
+      <!-- SPEIs detectados -->
+      <div id="spei-section" style="display:none">
+        <div class="section-label">_ Pagos SPEI detectados</div>
+        <div id="spei-pending-list" style="margin-bottom:20px"></div>
+        <div class="section-label">_ Sin folio identificado</div>
+        <div id="spei-unmatched-list" style="margin-bottom:24px"></div>
+      </div>
+
+      <div id="rem-stats"></div>
+      <div class="section-label">_ Recordatorios activos</div>
+      <div id="rem-list"><div class="empty">Cargando…</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ ESTADO DE CUENTA — PDF TEMPLATE (oculto) ══════════ -->
+  <div id="stmt-sheet-wrap" style="position:absolute;left:-9999px;top:0;pointer-events:none;overflow:hidden;width:816px">
+    <div id="stmt-sheet" class="fac-sheet" style="width:816px;max-width:816px;min-height:1056px;padding:40px 48px;box-sizing:border-box;box-shadow:none;display:flex;flex-direction:column;background:#fff;color:#161310;font-family:'Archivo',sans-serif">
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <div style="display:flex;gap:2px">
+              <div style="width:14px;height:24px;background:#FF5A1F"></div>
+              <div style="width:2px;height:24px;background:#161310"></div>
+              <div style="width:8px;height:24px;background:#FF5A1F"></div>
+            </div>
+            <span style="font-family:'Archivo',sans-serif;font-size:18px;font-weight:900;color:#161310;letter-spacing:-.04em;text-transform:uppercase">GAPT</span>
+            <div style="width:3px;height:3px;background:#FF5A1F;border-radius:0"></div>
+          </div>
+          <div style="font-family:monospace;font-size:5px;letter-spacing:.18em;color:#6E665B;text-transform:uppercase">THE GAPT PROJECT · NO TWO ALIKE</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:monospace;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#161310">ESTADO DE CUENTA</div>
+          <div id="stmt-fecha" style="font-family:monospace;font-size:7px;color:#6E665B;margin-top:4px"></div>
+        </div>
+      </div>
+
+      <!-- Client info -->
+      <div style="border-top:2px solid #FF5A1F;border-bottom:1px solid #D5CFBF;padding:10px 0;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-family:monospace;font-size:6px;letter-spacing:.14em;text-transform:uppercase;color:#6E665B;margin-bottom:3px">CLIENTE</div>
+          <div id="stmt-client-name" style="font-size:11px;font-weight:700;color:#161310"></div>
+          <div id="stmt-client-email" style="font-family:monospace;font-size:7px;color:#6E665B;margin-top:2px"></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:monospace;font-size:6px;letter-spacing:.14em;text-transform:uppercase;color:#6E665B;margin-bottom:3px">EMISOR</div>
+          <div style="font-size:9px;font-weight:700;color:#161310">THE GAPT PROJECT</div>
+          <div style="font-family:monospace;font-size:6px;color:#6E665B;margin-top:2px">finance@thegaptproject.com</div>
+          <div id="stmt-count" style="font-family:monospace;font-size:6px;color:#FF5A1F;margin-top:4px;text-transform:uppercase;letter-spacing:.08em"></div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <table id="stmt-table" style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:20px">
+        <thead>
+          <tr style="border-bottom:1px solid #FF5A1F">
+            <th style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B;padding:5px 6px;text-align:left;font-weight:400">FOLIO</th>
+            <th style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B;padding:5px 6px;text-align:left;font-weight:400">TIPO</th>
+            <th style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B;padding:5px 6px;text-align:left;font-weight:400">FECHA</th>
+            <th style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B;padding:5px 6px;text-align:left;font-weight:400">DESCRIPCIÓN</th>
+            <th style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B;padding:5px 6px;text-align:right;font-weight:400">SUBTOTAL</th>
+            <th style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B;padding:5px 6px;text-align:right;font-weight:400">IVA</th>
+            <th style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B;padding:5px 6px;text-align:right;font-weight:400">TOTAL</th>
+            <th style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B;padding:5px 6px;text-align:center;font-weight:400">ESTADO</th>
+          </tr>
+        </thead>
+        <tbody id="stmt-rows"></tbody>
+        <tfoot>
+          <tr style="border-top:2px solid #161310">
+            <td colspan="6" style="padding:8px 6px;font-family:monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#6E665B">TOTAL PENDIENTE</td>
+            <td id="stmt-total" style="padding:8px 6px;font-family:monospace;font-size:11px;font-weight:700;color:#FF5A1F;text-align:right"></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <!-- Overflow note (only shown if too many documents to list individually on one page) -->
+      <div id="stmt-overflow-note" style="display:none;font-family:monospace;font-size:7px;color:#B45309;background:#FFF7ED;border:1px solid #FDBA74;padding:8px 10px;margin-bottom:8px"></div>
+
+      <!-- Notes (margin-top:auto pins notes+footer to the bottom of the page, matching
+           .fac-sheet__notes in the invoice/CFDI sheets — same convention across all documents) -->
+      <div style="font-family:monospace;font-size:6px;color:#6E665B;line-height:1.6;margin-top:auto;border-top:1px solid #D5CFBF;padding-top:10px">
+        Este estado de cuenta incluye únicamente documentos con saldo pendiente. Para confirmar pagos o aclaraciones, contacta a finance@thegaptproject.com.
+      </div>
+
+      <!-- Footer -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:8px;border-top:1px solid #D5CFBF">
+        <div style="font-family:monospace;font-size:5px;letter-spacing:.1em;color:#6E665B;text-transform:uppercase">THE GAPT PROJECT · thegaptproject.com</div>
+        <div style="font-family:monospace;font-size:5px;color:#6E665B">Generado el <span id="stmt-generated"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB: FACTURAS (HISTORIAL) ══════════ -->
+  <div id="tab-facturas" class="tab-panel">
+    <div class="container" style="max-width:720px">
+      <div id="inv-stats" style="margin-bottom:16px"></div>
+      <!-- Aging -->
+      <div class="section-label" style="margin-top:0">_ Cuentas por cobrar</div>
+      <div id="inv-aging" style="margin-bottom:24px"><div class="empty">Cargando…</div></div>
+      <!-- Filters -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <button onclick="invFilter('todos')" class="inv-filter-btn active" data-filter="todos">Todos</button>
+        <button onclick="invFilter('pendiente')" class="inv-filter-btn" data-filter="pendiente">Pendientes</button>
+        <button onclick="invFilter('pagado')" class="inv-filter-btn" data-filter="pagado">Pagados</button>
+        <button onclick="invFilter('cancelado')" class="inv-filter-btn" data-filter="cancelado">Cancelados</button>
+      </div>
+      <div class="section-label">_ Historial</div>
+      <div id="inv-list"><div class="empty">Cargando…</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB: GASTOS ══════════ -->
+  <div id="tab-gastos" class="tab-panel">
+    <div class="container" style="max-width:640px">
+      <div class="section-label" style="margin-top:0">_ Nuevo gasto</div>
+      <div style="border:1px solid var(--border);background:var(--card);padding:16px;margin-bottom:24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <div class="fac-label">Fecha</div>
+            <input id="exp-fecha" class="fac-input" type="date" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Monto (MXN)</div>
+            <input id="exp-monto" class="fac-input" type="number" placeholder="0.00" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Descripción</div>
+            <input id="exp-desc" class="fac-input" placeholder="Adobe CC, renta, etc." style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Categoría</div>
+            <select id="exp-cat" class="fac-input" style="width:100%;box-sizing:border-box">
+              <option>Software</option>
+              <option>Servicios</option>
+              <option>Renta</option>
+              <option>Marketing</option>
+              <option>Materiales</option>
+              <option>Transporte</option>
+              <option>Impuestos</option>
+              <option>Nómina</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div style="grid-column:span 2">
+            <div class="fac-label">Proveedor (opcional)</div>
+            <input id="exp-prov" class="fac-input" placeholder="Nombre del proveedor" style="width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <button onclick="expCreate()" class="fac-btn" style="width:100%">Registrar gasto</button>
+        <div id="exp-create-err" style="font-family:monospace;font-size:10px;color:var(--bad);margin-top:8px;display:none"></div>
+      </div>
+      <div id="exp-summary" style="margin-bottom:16px"></div>
+      <div class="section-label">_ Gastos registrados</div>
+      <div id="exp-list"><div class="empty">Cargando…</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB: RECURRENTES ══════════ -->
+  <div id="tab-recurrentes" class="tab-panel">
+    <div class="container" style="max-width:640px">
+      <div class="section-label" style="margin-top:0">_ Nueva factura recurrente</div>
+      <div style="border:1px solid var(--border);background:var(--card);padding:16px;margin-bottom:24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <div class="fac-label">Nombre del cliente</div>
+            <input id="rec-nombre" class="fac-input" placeholder="Juan García" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Email del cliente</div>
+            <input id="rec-email" class="fac-input" type="email" placeholder="cliente@email.com" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Tipo de documento</div>
+            <input id="rec-tipo" class="fac-input" placeholder="Nota de cobro" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Total (MXN)</div>
+            <input id="rec-total" class="fac-input" type="number" placeholder="0.00" style="width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div class="fac-label">Frecuencia</div>
+            <select id="rec-freq" class="fac-input" style="width:100%;box-sizing:border-box">
+              <option value="mensual">Mensual</option>
+              <option value="bimestral">Bimestral</option>
+              <option value="trimestral">Trimestral</option>
+              <option value="semestral">Semestral</option>
+              <option value="anual">Anual</option>
+            </select>
+          </div>
+          <div>
+            <div class="fac-label">Concepto / Descripción</div>
+            <input id="rec-concepto" class="fac-input" placeholder="Ej. Servicio mensual" style="width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <button onclick="recCreate()" class="fac-btn" style="width:100%">Crear recurrente</button>
+        <div id="rec-create-err" style="font-family:monospace;font-size:10px;color:var(--bad);margin-top:8px;display:none"></div>
+      </div>
+      <div class="section-label">_ Recurrentes activos</div>
+      <div id="rec-list"><div class="empty">Cargando…</div></div>
+    </div>
+  </div>
+
+  <div id="tab-clientes" class="tab-panel">
+    <div class="container">
+      <div id="cli-list-view">
+        <button class="fac-btn-sm" onclick="openNewClientModal()" style="margin-bottom:16px">+ Nuevo cliente</button>
+        <div class="section-label">_ Clientes</div>
+        <div id="cli-list"></div>
+      </div>
+      <div id="cli-detail-view" style="display:none"></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="home" onclick="switchTab('home')">
+      <span class="nav-ico">◉</span><span class="nav-lbl">Inicio</span>
+    </button>
+    <button class="nav-item" data-tab="factura" onclick="switchTab('factura')">
+      <span class="nav-ico">✎</span><span class="nav-lbl">Factura</span>
+    </button>
+    <button class="nav-item" data-tab="cfdi" onclick="switchTab('cfdi')">
+      <span class="nav-ico">📋</span><span class="nav-lbl">CFDI</span>
+    </button>
+    <button class="nav-item" data-tab="entregas" onclick="switchTab('entregas')">
+      <span class="nav-ico">↑</span><span class="nav-lbl">Entregas</span>
+    </button>
+    <button class="nav-item" data-tab="recordatorios" onclick="switchTab('recordatorios')">
+      <span class="nav-ico">⏰</span><span class="nav-lbl">Cobros</span>
+    </button>
+    <button class="nav-item nav-item--more" id="nav-more-btn" onclick="toggleMoreMenu()">
+      <span class="nav-ico">⋯</span><span class="nav-lbl">Más</span>
+    </button>
+    <button class="nav-item nav-item--overflow" data-tab="facturas" onclick="switchTab('facturas')">
+      <span class="nav-ico">▤</span><span class="nav-lbl">Facturas</span>
+    </button>
+    <button class="nav-item nav-item--overflow" data-tab="gastos" onclick="switchTab('gastos')">
+      <span class="nav-ico">−</span><span class="nav-lbl">Gastos</span>
+    </button>
+    <button class="nav-item nav-item--overflow" data-tab="recurrentes" onclick="switchTab('recurrentes')">
+      <span class="nav-ico">↺</span><span class="nav-lbl">Recurrentes</span>
+    </button>
+    <button class="nav-item nav-item--overflow" data-tab="clientes" onclick="switchTab('clientes')">
+      <span class="nav-ico">👤</span><span class="nav-lbl">Clientes</span>
+    </button>
+  </nav>
+
+  <!-- Mobile overflow sheet (mirrors the 4 overflow tabs; hidden on desktop where the sidebar shows them directly) -->
+  <div class="nav-more-sheet" id="nav-more-sheet">
+    <button class="nav-more-item" data-tab="facturas" onclick="switchTab('facturas'); toggleMoreMenu(false)">
+      <span class="nav-ico">▤</span><span>Facturas</span>
+    </button>
+    <button class="nav-more-item" data-tab="gastos" onclick="switchTab('gastos'); toggleMoreMenu(false)">
+      <span class="nav-ico">−</span><span>Gastos</span>
+    </button>
+    <button class="nav-more-item" data-tab="recurrentes" onclick="switchTab('recurrentes'); toggleMoreMenu(false)">
+      <span class="nav-ico">↺</span><span>Recurrentes</span>
+    </button>
+    <button class="nav-more-item" data-tab="clientes" onclick="switchTab('clientes'); toggleMoreMenu(false)">
+      <span class="nav-ico">👤</span><span>Clientes</span>
+    </button>
+  </div>
+  <div class="nav-more-backdrop" id="nav-more-backdrop" onclick="toggleMoreMenu(false)"></div>
+
+</div>
+
+<!-- ── REPLY MODAL (CFDI) ── -->
+<div class="modal-overlay hidden" id="reply-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h4>Responder solicitud CFDI</h4>
+      <button class="modal-close" onclick="closeReply()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="reply-info" id="reply-info"></div>
+      <label class="modal-label">Mensaje al cliente</label>
+      <textarea id="reply-msg" rows="6"></textarea>
+      <div id="reply-status"></div>
+      <div class="modal-actions">
+        <button onclick="closeReply()">Cancelar</button>
+        <button class="btn-send" id="reply-send" onclick="sendReply()">Enviar y marcar atendida →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONFIG MODAL (Factura) ── -->
+<div class="gmodal-bg" id="fac-modalBg">
+  <div class="gmodal">
+    <h3>Configuración.</h3>
+    <p class="sub">Tu API key de Anthropic se guarda únicamente en este navegador. Consíguela en console.anthropic.com.</p>
+    <div class="gfield"><label>Anthropic API Key</label><input id="fac-cfgKey" class="mono" type="password" placeholder="sk-ant-..."></div>
+    <div class="gfield"><label>Nombre del emisor</label><input id="fac-cfgNombre" value="Gustavo A. Pastrana T."></div>
+    <div class="gfield"><label>RFC del emisor (opcional)</label><input id="fac-cfgRfc" class="mono"></div>
+    <div class="gfield"><label>PIN de acceso (4 dígitos)</label><input id="fac-cfgPin" class="mono" type="password" maxlength="4" inputmode="numeric" placeholder="Dejar vacío para mantener actual"></div>
+    <div class="gmodal-actions">
+      <button class="gbtn" id="fac-cfgCancel">Cancelar</button>
+      <button class="gbtn solid" id="fac-cfgSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SPEI MODAL (Factura) ── -->
+<div class="gmodal-bg" id="fac-speiModalBg">
+  <div class="gmodal">
+    <h3>Pago por SPEI.</h3>
+    <p class="sub">Registra el pago y envía el comprobante con la factura sellada.</p>
+    <div class="gfield"><label>Correo del cliente</label><input id="fac-speiTo" type="email"></div>
+    <div class="grid2">
+      <div class="gfield"><label>Referencia / Clave</label><input id="fac-speiRef" class="mono"></div>
+      <div class="gfield"><label>Fecha de pago</label><input id="fac-speiFecha" type="date"></div>
+    </div>
+    <div class="grid2">
+      <div class="gfield"><label>Banco origen</label><input id="fac-speiBanco"></div>
+      <div class="gfield"><label>Monto recibido (MXN)</label><input id="fac-speiMonto" type="number" step="0.01"></div>
+    </div>
+    <div class="gfield"><label>Nombre del ordenante</label><input id="fac-speiOrdenante"></div>
+    <div class="gfield"><label>CLABE / Cuenta origen</label><input id="fac-speiClabe" class="mono"></div>
+    <div class="gfield"><label>Concepto del pago</label><input id="fac-speiConcepto"></div>
+    <div class="gstatus" id="fac-speiStatus"></div>
+    <div class="gmodal-actions">
+      <button class="gbtn" id="fac-speiCancel">Cancelar</button>
+      <button class="gbtn solid" id="fac-speiGo">Enviar comprobante ✉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SEND MODAL (Factura) ── -->
+<div class="gmodal-bg" id="fac-sendModalBg">
+  <div class="gmodal">
+    <h3>Enviar por correo.</h3>
+    <p class="sub">El documento se enviará desde finance@thegaptproject.com.</p>
+    <div class="gfield"><label>Correo del destinatario</label><input id="fac-sendTo" type="email"></div>
+    <div class="gstatus" id="fac-sendStatus"></div>
+    <div class="gmodal-actions">
+      <button class="gbtn" id="fac-sendCancel">Cancelar</button>
+      <button class="gbtn solid" id="fac-sendGo">Enviar ✉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW CLIENT MODAL ── -->
+<div class="gmodal-bg" id="cli-modalBg">
+  <div class="gmodal">
+    <h3 id="cli-modal-title">Nuevo cliente.</h3>
+    <div class="gfield"><label>Nombre / Razón social</label><input id="cli-nombre"></div>
+    <div class="gfield"><label>RFC</label>
+      <div class="cli-rfc-row"><input id="cli-rfc" class="mono" placeholder="XAXX010101000"><button type="button" class="cli-rfc-generic" onclick="document.getElementById('cli-rfc').value='XAXX010101000'">Genérico</button></div>
+    </div>
+    <div class="gfield"><label>Email</label><input id="cli-email" type="email"></div>
+    <div class="gfield"><label>Teléfono</label><input id="cli-tel"></div>
+    <div class="gstatus" id="cli-status"></div>
+    <div class="gmodal-actions">
+      <button class="gbtn" onclick="closeClientModal()">Cancelar</button>
+      <button class="gbtn solid" onclick="saveClient()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── GENERIC ACTION MODAL (confirm / choice / payment — replaces alert/confirm/prompt) ── -->
+<div class="gmodal-bg" id="action-modalBg">
+  <div class="gmodal">
+    <h3 id="action-modal-title">Confirmar.</h3>
+    <p class="sub" id="action-modal-msg"></p>
+    <div id="action-modal-body"></div>
+    <div class="gstatus" id="action-modal-status"></div>
+    <div class="gmodal-actions">
+      <button class="gbtn" id="action-modal-cancel">Cancelar</button>
+      <button class="gbtn solid" id="action-modal-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CFDI DOC PREVIEW (read-only) ── -->
+<div class="gmodal-bg" id="cfdi-preview-modalBg">
+  <div class="gmodal" style="max-width:640px;padding:0;background:transparent;border:none;box-shadow:none">
+    <div style="background:var(--card);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border)">
+      <span class="mono" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">_ Vista previa (solo lectura)</span>
+      <button class="gbtn" onclick="document.getElementById('cfdi-preview-modalBg').classList.remove('show')">Cerrar ✕</button>
+    </div>
+    <div id="cfdi-preview-content" style="max-height:75vh;overflow-y:auto;background:#ddd5c4;padding:16px;border:1px solid var(--border);border-top:none"></div>
+  </div>
+</div>
+
+<!-- ── ENTREGAS DETAIL DRAWER ── -->
+<div class="ent-drawer-overlay" id="ent-drawer-overlay" onclick="closeDetail()"></div>
+<div class="ent-drawer" id="ent-detail-drawer">
+  <div class="ent-drawer-handle"></div>
+  <div class="ent-drawer-head">
+    <h4 id="ent-drawer-title">Detalle de entrega</h4>
+    <button class="ent-drawer-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="ent-drawer-body">
+    <div class="ent-detail-row"><div class="ent-detail-label">_ Archivo / Descripción</div><div class="ent-detail-val"><span id="ent-d-filename">—</span></div></div>
+    <div class="ent-detail-row"><div class="ent-detail-label">_ Destinatarios</div><div class="ent-detail-val"><span id="ent-d-contacts">—</span></div></div>
+    <div class="ent-detail-row"><div class="ent-detail-label">_ Link de descarga</div><div class="ent-detail-val"><span id="ent-d-link">—</span><button class="ent-btn-copy-sm" onclick="copyDetail('ent-d-link')">Copiar</button></div></div>
+    <div class="ent-detail-row"><div class="ent-detail-label">_ PIN del cliente</div><div class="ent-detail-val"><span class="ent-pin-display" id="ent-d-pin">—</span><button class="ent-btn-copy-sm" onclick="copyDetail('ent-d-pin',true)">Copiar</button></div></div>
+    <div class="ent-detail-row"><div class="ent-detail-label">_ Estado de descarga</div><div class="ent-download-status" id="ent-d-dl-status"><div class="ent-dl-dot no"></div><span>Sin descargar aún</span></div></div>
+    <div class="ent-drawer-actions">
+      <div class="ent-drawer-msg" id="ent-drawer-msg"></div>
+      <button class="ent-btn-resend" id="ent-btn-resend" onclick="resendDelivery()">Reenviar email →</button>
+      <button class="gbtn" style="width:100%;padding:13px" onclick="closeDetail()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/one/app.js" defer></script>
+</body>
+</html>

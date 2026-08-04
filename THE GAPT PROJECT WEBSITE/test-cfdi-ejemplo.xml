@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital"
+  Version="4.0" Serie="GAPT" Folio="0042" Fecha="2026-06-15T13:24:08"
+  FormaPago="03" SubTotal="48500.00" Moneda="MXN" Total="56260.00"
+  TipoDeComprobante="I" MetodoPago="PUE" LugarExpedicion="62000"
+  Sello="A1B2C3D4E5F6=="
+  NoCertificado="00001000000504465923"
+  Certificado="MIIFKzCCBBOgAwIBAgIUMzAwMDEwMDAwMDA0MDQ2NTkyMjMwDQ==">
+
+  <cfdi:Emisor Rfc="PAST850101AB1" Nombre="GUSTAVO ALEJANDRO PASTRANA TORRES" RegimenFiscal="612"/>
+
+  <cfdi:Receptor Rfc="REKA920304XY2" Nombre="REKA STUDIO SA DE CV"
+    DomicilioFiscalReceptor="62577" RegimenFiscalReceptor="601" UsoCFDI="G03"/>
+
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="81151602" Cantidad="1" ClaveUnidad="E48" Unidad="Servicio"
+      Descripcion="Anteproyecto arquitectonico - Casa Tepoztlan, 140 m2: levantamiento, plantas, cortes y fachadas"
+      ValorUnitario="32000.00" Importe="32000.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="32000.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="5120.00"/>
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81151602" Cantidad="2" ClaveUnidad="E48" Unidad="Render"
+      Descripcion="Render exterior fotorrealista, vista frontal y posterior"
+      ValorUnitario="6500.00" Importe="13000.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="13000.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="2080.00"/>
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81151602" Cantidad="1" ClaveUnidad="E48" Unidad="Visita"
+      Descripcion="Visita de obra y acompanamiento en tramite de licencia de construccion"
+      ValorUnitario="3500.00" Importe="3500.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="3500.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="560.00"/>
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+  </cfdi:Conceptos>
+
+  <cfdi:Impuestos TotalImpuestosTrasladados="7760.00">
+    <cfdi:Traslados>
+      <cfdi:Traslado Base="48500.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="7760.00"/>
+    </cfdi:Traslados>
+  </cfdi:Impuestos>
+
+  <cfdi:Complemento>
+    <tfd:TimbreFiscalDigital Version="1.1"
+      UUID="A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D"
+      FechaTimbrado="2026-06-15T13:25:41"
+      RfcProvCertif="SAT970701NN3"
+      SelloCFD="VkVSU0lPTl9QUlVFQkFfTk9fVkFMSURP=="
+      NoCertificadoSAT="00001000000504465111"
+      SelloSAT="VkVSU0lPTl9QUlVFQkFfTk9fVkFMSURP=="/>
+  </cfdi:Complemento>
+
+</cfdi:Comprobante>
