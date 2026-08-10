@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitar CFDI — THE GAPT PROJECT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F4EFE4;--surface:#FBF8F1;--ink:#161310;--ink-soft:#3A352E;
+  --muted:#6E665B;--line:#DCD2BF;--accent:#FF5A1F;--ok:#19A85B;--bad:#C0492F;
+  --spectrum:linear-gradient(90deg,#2563FF 0%,#6234E6 24%,#FF3D8B 50%,#FF5A1F 76%,#FFB300 100%);
+  --sh-card:0 1px 2px rgba(22,19,16,.05),0 10px 24px -14px rgba(22,19,16,.16);
+  --sh-pop:0 20px 48px -12px rgba(22,19,16,.22),0 0 0 1px rgba(22,19,16,.04);
+}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Archivo',sans-serif;font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh;font-variant-numeric:tabular-nums}
+.mono{font-family:'IBM Plex Mono',monospace}
+input,select,textarea{
+  font-family:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);padding:10px 12px;width:100%;outline:none;border-radius:0;transition:border-color .2s,box-shadow .2s;
+}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,90,31,.1)}
+button{-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.97);transition:transform .1s ease}
+label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field{margin-bottom:14px}
+.field.err input,.field.err select{border-color:var(--bad)}
+.field-err{display:none;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--bad);margin-top:5px;line-height:1.5}
+.field.err .field-err{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+
+/* TOPBAR */
+.topbar{background:#161310;padding:18px clamp(20px,4vw,48px);display:flex;align-items:center;gap:14px}
+.topbar-icon{width:30px;height:30px;background:#FF5A1F;box-shadow:0 4px 14px -4px rgba(255,90,31,.55);position:relative;flex-shrink:0}
+.topbar-stripe{position:absolute;top:0;left:17px;width:2px;height:30px;background:#161310}
+.topbar-name{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:900;font-size:18px;color:#F4EFE4;letter-spacing:-.04em}
+.topbar-dot{display:inline-block;width:4px;height:4px;background:#FF5A1F;margin-left:3px;margin-bottom:2px;vertical-align:bottom}
+.topbar-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#3A352E;margin-top:3px}
+
+.spectrum{height:4px;background:var(--spectrum)}
+
+/* HERO */
+.hero{padding:48px clamp(20px,4vw,48px) 0;max-width:640px;margin:0 auto}
+.hero h1{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:900;font-size:clamp(26px,5vw,38px);line-height:1.05;margin-bottom:12px}
+.hero p{font-size:14px;color:var(--ink-soft);line-height:1.7;margin-bottom:8px}
+.deadline{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:6px 12px;margin-top:8px}
+
+/* REF CARD */
+.ref-card{max-width:640px;margin:28px auto 0;background:#161310;box-shadow:0 12px 32px -14px rgba(22,19,16,.4);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ref-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#6E665B;margin-bottom:4px}
+.ref-value{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#F4EFE4}
+.ref-monto{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:#FF5A1F;text-shadow:0 0 20px rgba(255,90,31,.25)}
+
+/* FORM */
+.form-wrap{max-width:640px;margin:32px auto 64px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--sh-card);padding:32px 28px}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin:24px 0 14px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--line)}
+.section-label:first-child{margin-top:0}
+.btn-submit{width:100%;background:#161310;color:#F4EFE4;border:none;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:16px;cursor:pointer;margin-top:8px;transition:background .2s,box-shadow .2s;box-shadow:0 8px 20px -10px rgba(22,19,16,.5)}
+.btn-submit:hover{background:var(--accent);box-shadow:0 10px 24px -8px rgba(255,90,31,.45)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.status{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-top:12px;min-height:16px;text-align:center}
+.status.ok{color:var(--ok)}
+.status.err{color:var(--bad)}
+
+/* SUCCESS */
+.success-screen{display:none;max-width:640px;margin:48px auto;text-align:center;padding:0 24px;animation:cfdiPop .3s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes cfdiPop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.success-screen.show{display:block}
+.success-icon{width:56px;height:56px;background:var(--ok);box-shadow:0 12px 28px -10px rgba(25,168,91,.5);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff}
+.success-screen h2{font-size:24px;font-weight:900;margin-bottom:10px}
+.success-screen p{font-size:14px;color:var(--ink-soft);line-height:1.7}
+
+.hint{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+select option{background:#fff;color:#161310}
+
+/* FOOTER */
+.foot{background:#0F0D0A;padding:20px clamp(20px,4vw,48px);margin-top:auto}
+.foot-txt{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#3A352E;line-height:1.8}
+.foot-txt strong{color:#6E665B}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-icon"><div class="topbar-stripe"></div></div>
+  <div>
+    <div class="topbar-name">GAPT<span class="topbar-dot"></span></div>
+    <div class="topbar-sub">Solicitud de factura CFDI</div>
+  </div>
+</header>
+<div class="spectrum"></div>
+
+<div id="mainContent">
+
+  <div class="hero">
+    <h1>Solicitar<br>factura CFDI.</h1>
+    <p>Proporciona tus datos fiscales para que podamos emitir tu Comprobante Fiscal Digital (CFDI) ante el SAT.</p>
+    <p>El CFDI debe solicitarse <strong>antes del último día del mes</strong> en que realizaste el pago.</p>
+    <div class="deadline">⚠ Solicita antes de que termine el mes</div>
+  </div>
+
+  <div class="ref-card" id="refCard" style="display:none">
+    <div>
+      <div class="ref-label">Referencia de pago</div>
+      <div class="ref-value" id="refFolio">—</div>
+    </div>
+    <div style="text-align:right">
+      <div class="ref-label">Monto</div>
+      <div class="ref-monto" id="refMonto">—</div>
+    </div>
+  </div>
+
+  <div class="form-wrap">
+    <div class="section-label">_ 01 / Datos fiscales</div>
+
+    <div class="field" id="field-rfc">
+      <label>RFC *</label>
+      <input id="fRfc" class="mono" placeholder="XAXX010101000" maxlength="13" style="text-transform:uppercase">
+      <div class="hint">Persona física: 13 caracteres · Persona moral: 12 caracteres</div>
+      <div class="field-err" id="err-rfc"></div>
+    </div>
+
+    <div class="field" id="field-razon">
+      <label>Razón social / Nombre fiscal *</label>
+      <input id="fRazon" placeholder="Nombre exactamente como aparece en el SAT" style="text-transform:uppercase">
+      <div class="hint">Sin régimen ni tipo de sociedad (sin S.A. de C.V., etc.)</div>
+      <div class="field-err" id="err-razon"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="field" id="field-cp">
+        <label>Código postal fiscal *</label>
+        <input id="fCp" class="mono" placeholder="62000" maxlength="5" inputmode="numeric">
+        <div class="field-err" id="err-cp"></div>
+      </div>
+      <div class="field" id="field-correo">
+        <label>Correo para recibir el CFDI *</label>
+        <input id="fCorreo" type="email" placeholder="correo@empresa.com">
+        <div class="field-err" id="err-correo"></div>
+      </div>
+    </div>
+
+    <div class="field" id="field-regimen">
+      <label>Régimen fiscal *</label>
+      <select id="fRegimen">
+        <option value="">— Selecciona tu régimen —</option>
+        <optgroup label="Personas Morales">
+          <option value="601">601 — General de Ley Personas Morales</option>
+          <option value="603">603 — Personas Morales con Fines no Lucrativos</option>
+          <option value="620">620 — Sociedades Cooperativas de Producción</option>
+        </optgroup>
+        <optgroup label="Personas Físicas">
+          <option value="605">605 — Sueldos y Salarios</option>
+          <option value="606">606 — Arrendamiento</option>
+          <option value="612">612 — Actividades Empresariales y Profesionales</option>
+          <option value="614">614 — Ingresos por Intereses</option>
+          <option value="616">616 — Sin obligaciones fiscales</option>
+          <option value="621">621 — Incorporación Fiscal</option>
+          <option value="626">626 — Régimen Simplificado de Confianza (RESICO)</option>
+        </optgroup>
+        <optgroup label="Otros">
+          <option value="610">610 — Residentes en el Extranjero</option>
+          <option value="625">625 — Plataformas Tecnológicas</option>
+        </optgroup>
+      </select>
+      <div class="field-err" id="err-regimen"></div>
+    </div>
+
+    <div class="field" id="field-uso">
+      <label>Uso del CFDI *</label>
+      <select id="fUso">
+        <option value="">— Selecciona el uso —</option>
+        <optgroup label="Gastos">
+          <option value="G01">G01 — Adquisición de bienes</option>
+          <option value="G03" selected>G03 — Gastos en general</option>
+        </optgroup>
+        <optgroup label="Inversiones">
+          <option value="I01">I01 — Construcciones</option>
+          <option value="I04">I04 — Equipo de cómputo y accesorios</option>
+        </optgroup>
+        <optgroup label="Deducciones personales">
+          <option value="D01">D01 — Honorarios médicos, dentales y hospitalarios</option>
+          <option value="D10">D10 — Servicios educativos (colegiaturas)</option>
+        </optgroup>
+        <optgroup label="Sin deducción">
+          <option value="S01">S01 — Sin efectos fiscales</option>
+          <option value="CP01">CP01 — Pagos</option>
+        </optgroup>
+      </select>
+      <div class="field-err" id="err-uso"></div>
+    </div>
+
+    <div class="section-label">_ 02 / Datos del pago</div>
+
+    <div class="grid2">
+      <div class="field">
+        <label>Folio / Referencia</label>
+        <input id="fFolio" class="mono" placeholder="GAPT-COT-2026-001">
+      </div>
+      <div class="field">
+        <label>Monto pagado (MXN)</label>
+        <input id="fMonto" class="mono" type="number" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Notas adicionales (opcional)</label>
+      <textarea id="fNotas" rows="2" placeholder="Cualquier detalle relevante para la factura..."></textarea>
+    </div>
+
+    <button class="btn-submit" id="btnEnviar">Enviar solicitud →</button>
+    <div class="status" id="formStatus"></div>
+  </div>
+
+</div>
+
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✓</div>
+  <h2>Solicitud enviada.</h2>
+  <p>Hemos recibido tus datos fiscales. Tu CFDI será emitido y enviado a <strong id="successCorreo"></strong> en un plazo máximo de <strong>24 horas hábiles</strong>.</p>
+  <p style="margin-top:16px;font-size:12px;color:var(--muted)">Si tienes alguna duda escríbenos a <a href="mailto:finance@thegaptproject.com" style="color:var(--accent)">finance@thegaptproject.com</a></p>
+</div>
+
+<footer class="foot">
+  <div class="foot-txt">
+    <strong>THE GAPT PROJECT</strong> · finance@thegaptproject.com · thegaptproject.com<br>
+    © 2026 THE GAPT PROJECT · Cuernavaca, Morelos · México
+  </div>
+</footer>
+
+<script>
+const WORKER_URL = 'https://gapt-mail.hvfgc6bp2r.workers.dev';
+
+// Pre-fill from URL params
+const params = new URLSearchParams(window.location.search);
+const ref     = params.get('ref') || '';
+const monto   = params.get('monto') || '';
+const rfc     = params.get('rfc') || '';
+const razon   = params.get('razon') || '';
+const correo  = params.get('correo') || '';
+const cp      = params.get('cp') || '';
+const regimen = params.get('regimen') || '';
+
+if (ref) {
+  document.getElementById('fFolio').value = ref;
+  document.getElementById('refFolio').textContent = ref;
+  document.getElementById('refCard').style.display = 'flex';
+}
+if (monto) {
+  document.getElementById('fMonto').value = monto;
+  document.getElementById('refMonto').textContent = '$' + Number(monto).toLocaleString('es-MX', { minimumFractionDigits: 2 }) + ' MXN';
+}
+if (rfc) document.getElementById('fRfc').value = rfc.toUpperCase();
+if (razon) document.getElementById('fRazon').value = razon.toUpperCase();
+if (correo) document.getElementById('fCorreo').value = correo;
+if (cp) document.getElementById('fCp').value = cp;
+if (regimen) document.getElementById('fRegimen').value = regimen;
+
+document.getElementById('fRfc').addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase();
+});
+document.getElementById('fRazon').addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase();
+});
+
+['rfc','razon','cp','correo','regimen','uso'].forEach(name => {
+  const el = document.getElementById('f' + name.charAt(0).toUpperCase() + name.slice(1));
+  const evt = el.tagName === 'SELECT' ? 'change' : 'input';
+  el.addEventListener(evt, () => document.getElementById('field-' + name).classList.remove('err'));
+});
+
+const RFC_RE = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+const CP_RE = /^\d{5}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function setFieldError(name, msg) {
+  const field = document.getElementById('field-' + name);
+  const err = document.getElementById('err-' + name);
+  if (msg) { field.classList.add('err'); err.textContent = '⚠ ' + msg; }
+  else { field.classList.remove('err'); err.textContent = ''; }
+  return !msg;
+}
+
+document.getElementById('btnEnviar').addEventListener('click', async () => {
+  const rfc     = document.getElementById('fRfc').value.trim().toUpperCase();
+  const razon   = document.getElementById('fRazon').value.trim().toUpperCase();
+  const cp      = document.getElementById('fCp').value.trim();
+  const correo  = document.getElementById('fCorreo').value.trim();
+  const regimen = document.getElementById('fRegimen').value;
+  const uso     = document.getElementById('fUso').value;
+  const folio   = document.getElementById('fFolio').value.trim();
+  const monto   = document.getElementById('fMonto').value.trim();
+  const notas   = document.getElementById('fNotas').value.trim();
+  const st      = document.getElementById('formStatus');
+
+  // Validaciones — todas a la vez, cada campo inválido se marca en rojo
+  const checks = [
+    setFieldError('rfc', !rfc ? 'El RFC es obligatorio.' : !RFC_RE.test(rfc) ? 'RFC inválido (formato incorrecto).' : ''),
+    setFieldError('razon', !razon ? 'Ingresa la razón social.' : ''),
+    setFieldError('cp', !cp ? 'El código postal es obligatorio.' : !CP_RE.test(cp) ? 'Código postal inválido (5 dígitos).' : ''),
+    setFieldError('correo', !correo ? 'El correo es obligatorio.' : !EMAIL_RE.test(correo) ? 'Correo inválido.' : ''),
+    setFieldError('regimen', !regimen ? 'Selecciona el régimen fiscal.' : ''),
+    setFieldError('uso', !uso ? 'Selecciona el uso del CFDI.' : ''),
+  ];
+  if (checks.includes(false)) {
+    st.className = 'status err';
+    st.textContent = '⚠ Revisa los campos marcados en rojo.';
+    document.querySelector('.field.err input, .field.err select')?.focus();
+    return;
+  }
+  st.textContent = '';
+
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+  st.textContent = '';
+
+  try {
+    const res = await fetch(WORKER_URL + '/cfdi-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rfc, razon, cp, correo, regimen, uso, folio, monto, notas }),
+    });
+    const json = await res.json();
+    if (res.ok && json.ok) {
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('successCorreo').textContent = correo;
+      document.getElementById('successScreen').classList.add('show');
+    } else {
+      throw new Error(json.error || 'Error desconocido');
+    }
+  } catch(e) {
+    st.className = 'status err';
+    st.textContent = '✗ ' + e.message;
+    btn.disabled = false;
+    btn.textContent = 'Enviar solicitud →';
+  }
+});
+</script>
+</body>
+</html>

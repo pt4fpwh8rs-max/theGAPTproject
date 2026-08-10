@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificación de credencial — THE GAPT PROJECT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#121110;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#ff5a1f;text-decoration:none}
+a:hover{color:#ff7a45}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}
+.page{min-height:100vh;background:#121110;color:#f4f1ec;display:flex;align-items:center;justify-content:center;padding:24px}
+.wrap{width:100%;max-width:420px;display:flex;flex-direction:column;gap:22px;animation:fadeSlideIn .35s ease}
+.brand{display:flex;align-items:center;justify-content:center;gap:8px}
+.brand-word{font-weight:800;font-size:17px;letter-spacing:-.01em}
+.brand-tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(244,241,236,.4);letter-spacing:.05em}
+.eyebrow{text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(244,241,236,.4)}
+.card{background:#1c1b19;border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden}
+.card-hd{padding:22px;display:flex;flex-direction:column;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.photo{width:96px;height:96px;border-radius:50%;overflow:hidden;background:#2a2826;border:3px solid var(--st-color,#9c9890);display:flex;align-items:center;justify-content:center}
+.photo img{width:100%;height:100%;object-fit:cover;display:none}
+.nombre{font-weight:800;font-size:19px;text-align:center}
+.tipo-pill{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;padding:3px 9px;border-radius:20px;border:1px solid}
+.card-body{padding:22px;display:flex;flex-direction:column;gap:14px}
+.status-banner{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:4px;padding:12px;font-weight:700;font-size:14px;letter-spacing:.03em;border:1px solid}
+.status-dot{width:8px;height:8px;border-radius:50%;animation:pulseDot 2s ease-in-out infinite}
+.rows{display:flex;flex-direction:column;gap:10px;font-size:13.5px}
+.row{display:flex;justify-content:space-between;gap:12px}
+.row .lbl{color:rgba(244,241,236,.5);flex:none}
+.row .val{text-align:right}
+.mono{font-family:'JetBrains Mono',monospace}
+.footer-id{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.04em;color:rgba(244,241,236,.35);text-align:center;margin-top:6px}
+.notfound{background:#1c1b19;border:1px solid rgba(224,90,74,.4);border-radius:8px;padding:36px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.notfound .x{font-size:34px}
+.notfound .t{font-weight:700;font-size:16px;color:#e05a4a}
+.notfound .sub{font-size:13px;color:rgba(244,241,236,.5);margin:0;line-height:1.5}
+.disclaimer{text-align:center;font-size:11px;color:rgba(244,241,236,.3);margin:0}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 100 100" style="width:20px;height:20px"><rect x="0" y="0" width="57" height="100" fill="#ff5a1f"></rect><rect x="63" y="0" width="37" height="100" fill="#ff5a1f"></rect></svg>
+      <span class="brand-word">GAPT.</span>
+      <span class="brand-tag">ONE</span>
+    </div>
+    <div class="eyebrow">VERIFICACIÓN DE CREDENCIAL</div>
+
+    <div class="card hidden" id="view-found">
+      <div class="card-hd">
+        <div class="photo" id="v-photo"><img id="v-photo-img"></div>
+        <div class="nombre" id="v-nombre"></div>
+        <span class="tipo-pill" id="v-tipo"></span>
+      </div>
+      <div class="card-body">
+        <div class="status-banner" id="v-status-banner">
+          <span class="status-dot" id="v-status-dot"></span>
+          <span id="v-status-label"></span>
+        </div>
+        <div class="rows" id="v-rows-colaborador"></div>
+        <div class="rows" id="v-rows-contratista"></div>
+        <div class="footer-id" id="v-footer"></div>
+      </div>
+    </div>
+
+    <div class="notfound hidden" id="view-notfound">
+      <span class="x">✕</span>
+      <div class="t">Credencial no encontrada</div>
+      <p class="sub">El código escaneado no corresponde a una credencial válida de GAPT PROJECT. Si crees que esto es un error, contacta a la oficina.</p>
+    </div>
+
+    <p class="disclaimer">Este documento es una credencial oficial de GAPT PROJECT · thegaptproject.com</p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
