@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "thegaptproject",
+  "compatibility_date": "2026-06-11",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "The Gapt Project Deploy"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
